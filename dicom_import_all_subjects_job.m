@@ -2,7 +2,7 @@
 % Job configuration created by cfg_util (rev $Rev: 4252 $)
 %-----------------------------------------------------------------------
 matlabbatch{1}.cfg_basicio.cfg_named_dir.name = 'subjectDir';
-matlabbatch{1}.cfg_basicio.cfg_named_dir.dirs = {{'/Users/andreirusu/mvpa/3 random subjects/'}};
+matlabbatch{1}.cfg_basicio.cfg_named_dir.dirs = {'<UNDEFINED>'};
 matlabbatch{2}.cfg_basicio.file_fplist.dir(1) = cfg_dep;
 matlabbatch{2}.cfg_basicio.file_fplist.dir(1).tname = 'Directory';
 matlabbatch{2}.cfg_basicio.file_fplist.dir(1).tgt_spec{1}(1).name = 'filter';
