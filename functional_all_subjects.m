@@ -15,7 +15,7 @@ jobs = repmat(jobfile, 1, nrun);
 inputs = cell(1, nrun);
 for crun = 1:nrun
     disp(dirs(crun).name)
-    inputs{1, crun} = cellstr(fullfile(pwd, dirs(1).name)); % Named Directory Selector: Directory - cfg_files
+    inputs{1, crun} = cellstr(fullfile(pwd, dirs(crun).name)); % Named Directory Selector: Directory - cfg_files
 end
 spm('defaults', 'FMRI');
 spm_jobman('serial', jobs, '', inputs{:});
