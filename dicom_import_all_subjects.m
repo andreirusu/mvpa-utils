@@ -35,6 +35,3 @@ spm_jobman('serial', jobs, '', inputs{:});
 
 %}
 
-%% GO BACK TO CODE DIR
-
-cd(CODE_PATH)

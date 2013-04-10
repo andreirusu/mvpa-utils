@@ -1,13 +1,26 @@
+%% CLEANUP
 clear
-
 CODE_PATH = pwd;
-
 addpath(CODE_PATH)
-
 spm fmri
 
+
+%% %%%% MANUAL SET: all that needs to be set manually is in  section
 EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects/';
 
+
+%% START PROCESSING
 cd(EXPERIMENT_DIR)
 
-dicom_import_all_subjects
+
+%% DICOM IMPORT ALL SUBJECTS IN THE EXPERIMENT_DIR => PROC DIRECTORIES
+%dicom_import_all_subjects
+
+
+%% PRE-PROCESS ALL FUNCTIONAL VOLUMES IN PROC DIRs. => FINAL DIRs.
+functional_all_subjects
+
+
+%% GO BACK TO CODE DIR
+cd(CODE_PATH)
+
