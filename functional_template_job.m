@@ -1,0 +1,45 @@
+%-----------------------------------------------------------------------
+% Job configuration created by cfg_util (rev $Rev: 4252 $)
+%-----------------------------------------------------------------------
+matlabbatch{1}.cfg_basicio.cfg_named_dir.name = 'subjectDir';
+matlabbatch{1}.cfg_basicio.cfg_named_dir.dirs = {'<UNDEFINED>'};
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1) = cfg_dep;
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1).tname = 'Directory';
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1).tgt_spec{1}(1).name = 'filter';
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1).tgt_spec{1}(1).value = 'dir';
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1).tgt_spec{1}(2).name = 'strtype';
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1).tgt_spec{1}(2).value = 'e';
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1).sname = 'Named Directory Selector: subjectDir(1)';
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1).src_exbranch = substruct('.','val', '{}',{1}, '.','val', '{}',{1});
+matlabbatch{2}.cfg_basicio.cfg_cd.dir(1).src_output = substruct('.','dirs', '{}',{1});
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1) = cfg_dep;
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1).tname = 'Parent Directory';
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1).tgt_spec{1}(1).name = 'filter';
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1).tgt_spec{1}(1).value = 'dir';
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1).tgt_spec{1}(2).name = 'strtype';
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1).tgt_spec{1}(2).value = 'e';
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1).sname = 'Named Directory Selector: subjectDir(1)';
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1).src_exbranch = substruct('.','val', '{}',{1}, '.','val', '{}',{1});
+matlabbatch{3}.cfg_basicio.cfg_mkdir.parent(1).src_output = substruct('.','dirs', '{}',{1});
+matlabbatch{3}.cfg_basicio.cfg_mkdir.name = 'FINAL';
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1) = cfg_dep;
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1).tname = 'Directory';
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1).tgt_spec{1}(1).name = 'filter';
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1).tgt_spec{1}(1).value = 'dir';
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1).tgt_spec{1}(2).name = 'strtype';
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1).tgt_spec{1}(2).value = 'e';
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1).sname = 'Named Directory Selector: subjectDir(1)';
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1).src_exbranch = substruct('.','val', '{}',{1}, '.','val', '{}',{1});
+matlabbatch{4}.cfg_basicio.file_fplist.dir(1).src_output = substruct('.','dirs', '{}',{1});
+matlabbatch{4}.cfg_basicio.file_fplist.filter = '^f.*nii$';
+matlabbatch{4}.cfg_basicio.file_fplist.rec = 'FPList';
+matlabbatch{5}.cfg_basicio.cfg_assignin.name = 'selectedFiles';
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1) = cfg_dep;
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1).tname = 'Output Item';
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1).tgt_spec{1}(1).name = 'class';
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1).tgt_spec{1}(1).value = 'cfg_files';
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1).tgt_spec{1}(2).name = 'strtype';
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1).tgt_spec{1}(2).value = 'e';
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1).sname = 'File Selector (Batch Mode): Selected Files (^f.*nii$)';
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1).src_exbranch = substruct('.','val', '{}',{4}, '.','val', '{}',{1});
+matlabbatch{5}.cfg_basicio.cfg_assignin.output(1).src_output = substruct('.','files');
