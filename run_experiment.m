@@ -24,7 +24,11 @@ cd(EXPERIMENT_DIR)
 
 
 %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
-create_brain_masks_all_subjects
+%create_brain_masks_all_subjects
+
+
+%% PRE-PROCESS REST SESSIONS INDEPENDENTLY
+rest_sessions_all_subjects;
 
 
 %% GO BACK TO CODE DIR
