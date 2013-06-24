@@ -47,12 +47,14 @@ for crun = 1:nrun
             last = i;
         end
     end
-    disp(last - first + 1)
+    disp(['Fist vol: ', num2str(first), '; Last vol: ', num2str(last), '; Files: ', num2str(last - first + 1)])
     rest_file_count = 0;
     str = char(filelist(1,1));
     str = strrep(strrep(str, 'nii', 'txt'),'fMQ', 'rp_fmQ');
     disp(str);
     [a,b,c,d,e,f] = textread(str, '%f%f%f%f%f%f');
+    figure(9)
+    imagesc(cat(2,(a-mean(a))/std(a),(b-mean(b))/std(b),(c-mean(c))/std(c),(d-mean(d))/std(d),(e-mean(e))/std(e),(f-mean(f))/std(f))); colorbar;
     
     %%      GET WHITE MATTER MASK
     clear white_mask
@@ -104,6 +106,7 @@ for crun = 1:nrun
         create(N_new);
         %Because Matlab is column-major, remember to transpose X
         N_new.dat(:,:,:,:)=reshape(detrend_X',dim(1),dim(2),dim(3),numel(N));
+        % display data
         figure(3);
         imagesc(N_new.dat(:,:,20,1)); colorbar;
         figure(4);
