@@ -63,6 +63,34 @@ for crun = 1:nrun
     white_binary_mask = (white_mask(1).dat(:,:,:) > 0.99);
     disp(size(white_binary_mask));
     disp(sum(sum(sum(white_binary_mask))))
+     %%      GET CSF MASK
+    clear csf_mask
+    csf_mask = nifti([sessionPaths{crun}, '/../one_back/struct/PROC/rtrimmed_csf.nii']);
+    disp(csf_mask(1).dat.dim)
+    csf_binary_mask = (csf_mask(1).dat(:,:,:) > 0.99);
+    disp(size(csf_binary_mask));
+    disp(sum(sum(sum(csf_binary_mask))))
+    % set everything to 0 except a bounding box around the ventricles
+    csf_binary_mask(1:31, :, :) = 0;
+    csf_binary_mask(66:96,  :,  :) = 0;
+    csf_binary_mask(:,  1:24,   :) = 0;
+    csf_binary_mask(:,  71:96,  :) = 0;
+    csf_binary_mask(:,  :,  1:8) = 0;
+    csf_binary_mask(:,  :,  29:40) = 0;
+    %% write the volume to file, for later reference
+     %To write the nifti object back, I often just write in a 4D nifti
+        csf_mask_bbox=csf_mask(1);
+        csf_mask_bbox.dat.fname=[sessionPaths{crun}, '/../one_back/struct/PROC/rtrimmed_csf_bbox.nii'];
+        dim=csf_mask(1).dat.dim;
+        csf_mask_bbox.dat.dim=[dim(1),dim(2),dim(3)];
+        csf_mask_bbox.dat.dtype='float32';
+
+        %write the nifti object to disk with only header informations 
+        create(csf_mask_bbox);
+        %Because Matlab is column-major, remember to transpose X
+        csf_mask_bbox.dat(:,:,:,:)=csf_binary_mask;
+    
+    %%
     %%
     % process the 4 rest sessions independently
     for l = 1:4;
@@ -81,18 +109,25 @@ for crun = 1:nrun
         %use dummy mask for now
         mask=true(dim(1),dim(2),dim(3));
         white_matter_means = zeros(numel(N),1);
+        csf_means = zeros(numel(N),1);
         for i=1:numel(N);
             data = N(i).dat(:,:,:); %this is the wierd part of SPM nifti object, this will convert the file_array into standard matrix
             X(i,:) = data(mask(:));
             white_matter_means(i) = mean(data(white_binary_mask(:)));
+            csf_means(i) = mean(data(csf_binary_mask(:)));
             % isp(white_matter_means(i))
         end
-        white_matter_means = (white_matter_means - mean(white_matter_means)) / std(white_matter_means);
+        
+        %white_matter_means = (white_matter_means - mean(white_matter_means)) / std(white_matter_means);
+        %csf_means = (csf_means - mean(csf_means)) / std(csf_means);
         
         % then you do some process here
         % Example of simple high-pass filtering using DCT
-        dctmtx = cat(2,spm_dctmtx(numel(N),5), a((rest_file_count+1):(rest_file_count + size(files,1))), b( (rest_file_count+1) : (rest_file_count + size(files,1))), c( (rest_file_count+1) : (rest_file_count + size(files,1))), d( (rest_file_count+1) : (rest_file_count + size(files,1))), e( (rest_file_count+1) : (rest_file_count + size(files,1))), f( (rest_file_count+1):(rest_file_count + size(files,1))), white_matter_means);
-        
+        disp(['Fist vol: ', num2str(rest_file_count+first), '; Last vol: ', num2str(rest_file_count +first+ size(files,1) - 1)])
+        dctmtx = cat(2,spm_dctmtx(numel(N),5), a((rest_file_count+first):(rest_file_count +first+ size(files,1) - 1)), b( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), c( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), d( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), e( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), f( (rest_file_count+first):(rest_file_count +first+ size(files,1) - 1)), white_matter_means, csf_means);
+        for i=1:size(dctmtx,2)
+            dctmtx(:,i) = (dctmtx(:,i) - mean(dctmtx(:,i))) / std(dctmtx(:,i));
+        end
         
         R = eye(numel(N))-dctmtx*pinv(dctmtx);
         detrend_X=R*X;
@@ -115,6 +150,9 @@ for crun = 1:nrun
         imagesc(dctmtx); colorbar;
         figure(6);
         imagesc(white_mask(1).dat(:,:,20)); colorbar;
+        figure(7);
+        imagesc(csf_mask_bbox(1).dat(:,:,20)); colorbar;
+        
         % update count
         rest_file_count = rest_file_count + size(files,1);
     end
