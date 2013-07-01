@@ -14,7 +14,7 @@ from tools import *
 random.seed(0)
 
 EXPERIMENT_DIR  = '../3_random_subjects'
-EXPORT_DIR      = os.getcwd()
+EXPORT_DIR      = '../datasets'
 TRAIN_PREFIX    = 'RAW.one_back'
 TEST_PREFIX     = 'RAW.reward'
 SL_RADIUS       = 2
