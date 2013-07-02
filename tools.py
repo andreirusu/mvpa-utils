@@ -47,8 +47,11 @@ def configure_cv(ds):
 
 
 def preprocess(ds):
-    print('NaN Count: '+str(np.sum(np.isnan(ds.samples))))
     print('Original dataset shape: ' + str(ds.shape))
+    print('NaN Count: '+str(np.sum(np.isnan(ds.samples))))
+    #### REMOVE ALL COLUMNS WHICH CONTAIN NAN
+    ds = ds[:, np.isnan(np.sum(ds.samples, axis=1))]
+    print('New dataset shape: ' + str(ds.shape))
     #### remove constant columns
     print('Removing voxels with std < '+str(EPSILON)+'...')
     ds = ds[:, np.std(ds.samples,axis=0) > EPSILON ]
@@ -86,9 +89,12 @@ def preprocess(ds):
  
 
 def preprocess_train_and_test(train_ds, test_ds):
+    print('Original dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
     print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
     print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
-    print('Original dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
+    train_ds = train_ds[:, np.isnan(np.sum(train_ds.samples, axis=1))]
+    test_ds = test_ds[:, np.isnan(np.sum(test_ds.samples, axis=1))]
+    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
     # remove constant columns
     print('Removing voxels with std < '+str(EPSILON)+'...')
     test_ds = test_ds[:, np.std(train_ds.samples,0) > EPSILON ]
