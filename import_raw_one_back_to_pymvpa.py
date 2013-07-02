@@ -54,6 +54,9 @@ def main():
         print(ds.targets)
         print(ds.chunks)
         ds.save(os.path.join(EXPERIMENT_DIR, EXPORT_DIR, 'RAW.'+CURRENT_TASK + '.'+subject_dir+'.full.hdf5'))
+        ### PRE-PROCESSING TEST
+        ds = preprocess(ds)
+
 
 
 def import_subject_dataset(path):
