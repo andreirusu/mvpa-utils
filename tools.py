@@ -74,8 +74,44 @@ def truncateExtremeValues(ds):
     print('Mean value: ' + str(np.mean(ds.samples)))
     print('Max value: ' + str(np.max(ds.samples)))
     print('Truncating extreme values...')
-    ds.samples[ds.samples < -5] = -5
-    ds.samples[ds.samples > 5] = 5
+    print('Extreme columns: ' + str(np.sum(np.nanmax(ds.samples, axis=0) > 10) + np.sum(np.nanmin(ds.samples, axis=0) < -10)))
+    ds.samples[ds.samples < -10] = -10
+    ds.samples[ds.samples > 10] = 10
+    #### check for extremes
+    print('Min value: ' + str(np.min(ds.samples)))
+    print('Mean value: ' + str(np.mean(ds.samples)))
+    print('Max value: ' + str(np.max(ds.samples)))
+    return ds
+
+
+def histAndWait(nparray, t=5):
+    import matplotlib
+    pl.hist(nparray)
+    pl.show()
+    import time
+    time.sleep(t)
+
+def plotAndWait(nparray, t=5):
+    import matplotlib
+    pl.plot(nparray)
+    pl.show()
+    import time
+    time.sleep(t)
+
+
+
+def removeExtremeColumns(ds):
+    #### TEMPORARY FIX: 
+    #### check for extremes
+    print('Min value: ' + str(np.min(ds.samples)))
+    print('Mean value: ' + str(np.mean(ds.samples)))
+    print('Max value: ' + str(np.max(ds.samples)))
+    print('Truncating extreme values...')
+    #plotAndWait(ds.samples[:, 34344])
+    ds = ds[:, np.nanmax(ds.samples, axis=0) < 5000] 
+    print('New dataset shape: ' + str(ds.shape))
+    ds = ds[:, np.nanmin(ds.samples, axis=0) > -5000] 
+    print('New dataset shape: ' + str(ds.shape))
     #### check for extremes
     print('Min value: ' + str(np.min(ds.samples)))
     print('Mean value: ' + str(np.mean(ds.samples)))
@@ -85,10 +121,19 @@ def truncateExtremeValues(ds):
 
 def zscoreChunks(ds):
     #### Z-SCORE
+    #### check for extremes
+    print('Min value: ' + str(np.min(ds.samples)))
+    print('Mean value: ' + str(np.mean(ds.samples)))
+    print('Max value: ' + str(np.max(ds.samples)))
     print('Z-scoring...')
     #zscore(ds, param_est=('targets', [0]))
     zscore(ds, chunks_attr='chunks')
+    #### check for extremes
+    print('Min value: ' + str(np.min(ds.samples)))
+    print('Mean value: ' + str(np.mean(ds.samples)))
+    print('Max value: ' + str(np.max(ds.samples)))
     return ds
+
 
 def cleanup(ds):
     #### CLEAN-UP
@@ -104,9 +149,11 @@ def cleanup(ds):
     assert(not np.isnan(np.sum(ds.samples)))
     return ds
 
+
 def preprocess(ds):
     print('Original dataset shape: ' + str(ds.shape))
     return cleanup(zscoreChunks(truncateExtremeValues(removeNaNColumns(removeConstantColums(ds)))))
+    #return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
  
 
 def preprocess_train_and_test(train_ds, test_ds):
