@@ -15,7 +15,7 @@ random.seed(0)
 
 EXPERIMENT_DIR  = '../3_random_subjects'
 EXPORT_DIR      = '../datasets'
-TRAIN_PREFIX    = 'RAW.one_back'
+TRAIN_PREFIX    = 'one_back'
 SPACE           = 'full'
 
 

@@ -67,6 +67,7 @@ def removeLinearTrends(ds):
     poly_detrend(ds, polyord=1, chunks_attr='chunks')
     return ds
 
+
 def truncateExtremeValues(ds):
     #### TEMPORARY FIX: 
     #### check for extremes
