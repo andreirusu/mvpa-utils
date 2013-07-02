@@ -45,39 +45,56 @@ def configure_cv(ds):
     return cv
 
 
-
-def preprocess(ds):
-    print('Original dataset shape: ' + str(ds.shape))
+def removeNaNColumns(ds) :
     print('NaN Count: '+str(np.sum(np.isnan(ds.samples))))
     #### REMOVE ALL COLUMNS WHICH CONTAIN NAN
-    ds = ds[:, np.isnan(np.sum(ds.samples, axis=1))]
+    ds = ds[:, ~np.isnan(np.sum(ds.samples, axis=0))]
     print('New dataset shape: ' + str(ds.shape))
+    return ds
+
+
+def removeConstantColums(ds):
     #### remove constant columns
     print('Removing voxels with std < '+str(EPSILON)+'...')
     ds = ds[:, np.std(ds.samples,axis=0) > EPSILON ]
     print('New dataset shape: ' + str(ds.shape))
+    return ds
+
+
+def removeLinearTrends(ds):
     #### LINEAR DETRENDING
-    #print('PolyDetrend...')
-    #poly_detrend(ds, polyord=1, chunks_attr='chunks')
-    #### truncating extreme values
-    #ds.samples[ds.samples < -5] = -5
-    #ds.samples[ds.samples > 5] = 5
+    print('PolyDetrend...')
+    poly_detrend(ds, polyord=1, chunks_attr='chunks')
+    return ds
+
+def truncateExtremeValues(ds):
+    #### TEMPORARY FIX: 
     #### check for extremes
     print('Min value: ' + str(np.min(ds.samples)))
     print('Mean value: ' + str(np.mean(ds.samples)))
     print('Max value: ' + str(np.max(ds.samples)))
+    print('Truncating extreme values...')
+    ds.samples[ds.samples < -5] = -5
+    ds.samples[ds.samples > 5] = 5
+    #### check for extremes
+    print('Min value: ' + str(np.min(ds.samples)))
+    print('Mean value: ' + str(np.mean(ds.samples)))
+    print('Max value: ' + str(np.max(ds.samples)))
+    return ds
+
+
+def zscoreChunks(ds):
     #### Z-SCORE
     print('Z-scoring...')
     #zscore(ds, param_est=('targets', [0]))
     zscore(ds, chunks_attr='chunks')
+    return ds
+
+def cleanup(ds):
     #### CLEAN-UP
     print('Removing extra volumes...')
     ds = ds[ds.targets != 0]
     print('New dataset shape: ' + str(ds.shape))
-    #### check for extremes
-    print('Min value: ' + str(np.min(ds.samples)))
-    print('Mean value: ' + str(np.mean(ds.samples)))
-    print('Max value: ' + str(np.max(ds.samples)))
     print('Targets:')
     print(ds.targets)
     print('Chunks:')
@@ -86,14 +103,18 @@ def preprocess(ds):
     print('NaN Count: '+str(np.sum(np.isnan(ds.samples))))
     assert(not np.isnan(np.sum(ds.samples)))
     return ds
+
+def preprocess(ds):
+    print('Original dataset shape: ' + str(ds.shape))
+    return cleanup(zscoreChunks(truncateExtremeValues(removeNaNColumns(removeConstantColums(ds)))))
  
 
 def preprocess_train_and_test(train_ds, test_ds):
     print('Original dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
     print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
     print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
-    train_ds = train_ds[:, np.isnan(np.sum(train_ds.samples, axis=1))]
-    test_ds = test_ds[:, np.isnan(np.sum(test_ds.samples, axis=1))]
+    train_ds = train_ds[:, ~np.isnan(np.sum(train_ds.samples, axis=0))]
+    test_ds = test_ds[:, ~np.isnan(np.sum(test_ds.samples, axis=0))]
     print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
     # remove constant columns
     print('Removing voxels with std < '+str(EPSILON)+'...')
@@ -106,12 +127,13 @@ def preprocess_train_and_test(train_ds, test_ds):
     train_ds = train_ds[train_ds.targets != 0]
     test_ds = test_ds[test_ds.targets != 0]
     print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
+    #### TEMPORARY FIX: 
+    print('Truncating extreme values...')
+    train_ds.samples[train_ds.samples < -5] = -5
+    train_ds.samples[train_ds.samples > 5] = 5
     #### truncating extreme values
-    #train_ds.samples[train_ds.samples < -5] = -5
-    #train_ds.samples[train_ds.samples > 5] = 5
-    #### truncating extreme values
-    #test_ds.samples[test_ds.samples < -5] = -5
-    #test_ds.samples[test_ds.samples > 5] = 5
+    test_ds.samples[test_ds.samples < -5] = -5
+    test_ds.samples[test_ds.samples > 5] = 5
     #### check for extremes
     print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
     print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMax test value: ' + str(np.mean(test_ds.samples)))
