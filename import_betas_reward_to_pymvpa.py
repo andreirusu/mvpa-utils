@@ -44,7 +44,7 @@ def main():
         print(ds.nfeatures)
         print(ds.targets)
         print(ds.chunks)
-        ds.save(os.path.join(EXPERIMENT_DIR, EXPORT_DIR, CURRENT_TASK + '.'+subject_dir+'.full.hdf5'))
+        ds.save(os.path.join(EXPORT_DIR, CURRENT_TASK + '.'+subject_dir+'.full.hdf5'))
         ### PRE-PROCESSING TEST
         ds = preprocess(ds)
 
