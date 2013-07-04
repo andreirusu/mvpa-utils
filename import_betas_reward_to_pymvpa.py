@@ -6,20 +6,25 @@ import os
 import glob
 import h5py
 
+from tools import *
+
 
 #EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
 EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
-CURRENT_TASK = 'reward' # also supported
+CURRENT_TASK = 'reward' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
+
 
 def get_chunks():
     chunks = np.arange(1,3).repeat(32)
     chunks = np.concatenate((chunks, chunks), axis=0)
     return chunks
 
+
 def get_labels():
     labels = np.arange(1,3).repeat(64)
     return labels
+
 
 def main():
     os.chdir(EXPERIMENT_DIR)

@@ -10,9 +10,6 @@ import random
 
 from tools import * 
 
-
-random.seed(0)
-
 EXPERIMENT_DIR  = '../3_random_subjects'
 EXPORT_DIR      = '../datasets'
 TRAIN_PREFIX    = 'one_back'
@@ -49,7 +46,7 @@ def main():
         print('Mapping measure back into original voxel space!')
         map_voxels(ds.fa.voxel_indices, res, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'ANOVA.' + SPACE+'.'+dsname+ '.nii')
         print(DELIM1)
-        print('Done')
+        print('Done\n')
     pl.show()
 
 

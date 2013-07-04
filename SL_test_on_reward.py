@@ -50,14 +50,14 @@ def main() :
         #pl.hist(cvmeans, 100)
         print('Mapping seachlight results back into original voxel space!')
         cvmeans = cvmeans*100
-        cvmeans[cvmeans < 55] = 0
+        cvmeans[cvmeans < 60] = 0
 
         map_voxels(ds.fa.voxel_indices, cvmeans, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'CROSS_SL.R_'+str(SL_RADIUS)+'.'+ SPACE + '.' + dsname+ '.nii')
 
         print(DELIM1)
         print('Best accuracy: '+str(np.max(cvmeans)))
         print(DELIM1)
-        print('Done')
+        print('Done\n')
     pl.show()
 
 
