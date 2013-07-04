@@ -193,17 +193,12 @@ def cleanup(ds):
 
 def preprocess(ds):
     print('Original dataset shape: ' + str(ds.shape))
-    return cleanup(zscoreChunks(truncateExtremeValues(removeNaNColumns(removeConstantColums(ds)))))
-    #return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
+    #return cleanup(zscoreChunks(truncateExtremeValues(removeNaNColumns(removeConstantColums(ds)))))
+    return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
  
 
 def preprocess_train_and_test(train_ds, test_ds):
     print('Original dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
-    print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
-    print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
-    train_ds = train_ds[:, ~np.isnan(np.sum(train_ds.samples, axis=0))]
-    test_ds = test_ds[:, ~np.isnan(np.sum(test_ds.samples, axis=0))]
-    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
     # remove constant columns
     print('Removing voxels with std < '+str(EPSILON)+'...')
     test_ds = test_ds[:, np.std(train_ds.samples,0) > EPSILON ]
@@ -211,17 +206,23 @@ def preprocess_train_and_test(train_ds, test_ds):
     train_ds = train_ds[:, np.std(test_ds.samples,0) > EPSILON ]
     test_ds = test_ds[:, np.std(test_ds.samples,0) > EPSILON ]
     print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
+    ### REMOVING colums with NaNs
+    print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
+    print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
+    train_ds = train_ds[:, ~np.isnan(np.sum(train_ds.samples, axis=0))]
+    test_ds = test_ds[:, ~np.isnan(np.sum(test_ds.samples, axis=0))]
+    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
     print('Removing extra volumes...')
     train_ds = train_ds[train_ds.targets != 0]
     test_ds = test_ds[test_ds.targets != 0]
     print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
     #### TEMPORARY FIX: 
-    print('Truncating extreme values...')
-    train_ds.samples[train_ds.samples < -5] = -5
-    train_ds.samples[train_ds.samples > 5] = 5
-    #### truncating extreme values
-    test_ds.samples[test_ds.samples < -5] = -5
-    test_ds.samples[test_ds.samples > 5] = 5
+   # print('Truncating extreme values...')
+   # train_ds.samples[train_ds.samples < -5] = -5
+   # train_ds.samples[train_ds.samples > 5] = 5
+   # #### truncating extreme values
+   # test_ds.samples[test_ds.samples < -5] = -5
+   # test_ds.samples[test_ds.samples > 5] = 5
     #### check for extremes
     print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
     print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMax test value: ' + str(np.mean(test_ds.samples)))
