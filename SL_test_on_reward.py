@@ -15,43 +15,9 @@ random.seed(0)
 
 EXPERIMENT_DIR  = '../3_random_subjects'
 EXPORT_DIR      = '../datasets'
-TRAIN_PREFIX    = 'RAW.one_back'
-TEST_PREFIX     = 'RAW.reward'
-SL_RADIUS       = 2
+TRAIN_PREFIX    = 'one_back'
+TEST_PREFIX     = 'reward'
 SPACE           = 'full'
-
-
-def partitioner():
-    return CustomPartitioner([([1], [2])]) 
-    #return NFoldPartitioner(cvtype=1) 
-
-
-def configure_sl_gnb(ds):
-    sl = sphere_gnbsearchlight(GNB(), partitioner(), radius=SL_RADIUS)    
-    return sl
-
-def configure_sl_lcsvm(ds):
-    clf = LinearCSVMC(C=1)
-    cv = CrossValidation(clf, partitioner())
-    sl = sphere_searchlight(cv, radius=SL_RADIUS)    
-    return sl
-
-
-def configure_sl_smlr(ds):
-    # Sparse (Multinomial) Logistic Regression (lm = lambda, regularization parameter)
-    clf = SMLR(lm = 1, seed = 0, ties = False, maxiter = 100) 
-    cv = CrossValidation(clf, partitioner())
-    sl = sphere_searchlight(cv, radius=SL_RADIUS)    
-    return sl
-
-
-
-def configure_sl(ds):
-    return configure_sl_gnb(ds)
-    #return configure_sl_lcsvm(ds)
-    #return configure_sl_smlr(ds)
-
-   
 
 
 def main() :

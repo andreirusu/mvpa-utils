@@ -20,6 +20,45 @@ from tools import *
 EPSILON = 1e-5
 DELIM   =   '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 DELIM1  =   '#######################################################################################'
+SL_RADIUS   = 3
+
+## MAKE EXPERIMENTS FULLY REPEATABLE
+random.seed(0)
+
+
+
+
+def partitioner():
+    #return CustomPartitioner([([2], [1]), ([1], [2])]) 
+    return NFoldPartitioner(cvtype=1) 
+
+
+def configure_sl_gnb(ds):
+    sl = sphere_gnbsearchlight(GNB(), partitioner(), radius=SL_RADIUS)    
+    return sl
+
+def configure_sl_lcsvm(ds):
+    clf = LinearCSVMC(C=1)
+    cv = CrossValidation(clf, partitioner())
+    sl = sphere_searchlight(cv, radius=SL_RADIUS)    
+    return sl
+
+
+def configure_sl_smlr(ds):
+    # Sparse (Multinomial) Logistic Regression (lm = lambda, regularization parameter)
+    clf = SMLR(lm = 1, seed = 0, ties = False, maxiter = 100) 
+    cv = CrossValidation(clf, partitioner())
+    sl = sphere_searchlight(cv, radius=SL_RADIUS)    
+    return sl
+
+
+
+def configure_sl(ds):
+    return configure_sl_gnb(ds)
+    #return configure_sl_lcsvm(ds)
+    #return configure_sl_smlr(ds)
+
+   
 
 
 
@@ -76,6 +115,7 @@ def truncateExtremeValues(ds):
     print('Max value: ' + str(np.max(ds.samples)))
     print('Truncating extreme values...')
     print('Extreme columns: ' + str(np.sum(np.nanmax(ds.samples, axis=0) > 10) + np.sum(np.nanmin(ds.samples, axis=0) < -10)))
+    #plotAndWait(ds.samples[:, 34344])
     ds.samples[ds.samples < -10] = -10
     ds.samples[ds.samples > 10] = 10
     #### check for extremes
