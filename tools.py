@@ -246,7 +246,7 @@ def preprocess_train_and_test(train_ds, test_ds):
 
 def map_voxels(voxels, values, struct_filename, filename):
 	struct = h5load(struct_filename)
-	prog = ProgressBar(0, len(struct.samples[0]), 77, mode='fixed', char='=')
+	prog = ProgressBar(0, len(voxels))
 	st = np.zeros(struct.shape[1])
 	# find voxels in struct
 	struct_dict = {}
