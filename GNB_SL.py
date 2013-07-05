@@ -45,8 +45,8 @@ def main():
         cvmeans = 1 - np.mean(res.samples, axis=0)
         pl.figure()
         cvmeans = cvmeans*100
-        cvmeans[cvmeans<65] = 0
         pl.hist(cvmeans, 100)
+        cvmeans[cvmeans<60] = 0
         print(DELIM1)
         print('Best mean accuracy: '+str(np.max(cvmeans)))
         print(DELIM1)
