@@ -40,17 +40,18 @@ def main():
         print(DELIM)
         measure = configure_sl(ds)
         res = measure(ds)
-        h5save('SL.R_'+str(SL_RADIUS)+'.'+ SPACE + '.' + dsname+ '.hdf5', res)
+        h5save('SL.R_'+str(SL_RADIUS)+'.'+TRAIN_PREFIX + '.' +  SPACE + '.' + dsname+ '.hdf5', res)
         print(res.samples)
-        cvmeans = 1 - np.max(res.samples, axis=0)
+        cvmeans = 1 - np.mean(res.samples, axis=0)
         pl.figure()
         cvmeans = cvmeans*100
+        cvmeans[cvmeans<65] = 0
         pl.hist(cvmeans, 100)
         print(DELIM1)
-        print('Best min accuracy: '+str(np.max(cvmeans)))
+        print('Best mean accuracy: '+str(np.max(cvmeans)))
         print(DELIM1)
         print('Mapping measure back into original voxel space!')
-        map_voxels(ds.fa.voxel_indices, cvmeans, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'SL.R_'+str(SL_RADIUS)+'.'+ SPACE + '.' + dsname+ '.nii')
+        map_voxels(ds.fa.voxel_indices, cvmeans, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'SL.R_'+str(SL_RADIUS)+'.'+TRAIN_PREFIX + '.' +  SPACE + '.' + dsname+ '.nii')
         print('Done\n')
     pl.show()
 

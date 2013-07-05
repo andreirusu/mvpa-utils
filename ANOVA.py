@@ -37,14 +37,14 @@ def main():
         print(DELIM)
         measure = configure(ds)
         res = measure(ds)
-        h5save('ANOVA.' + SPACE+'.'+ dsname+ '.hdf5', res)
+        h5save('ANOVA.' + SPACE+'.'+TRAIN_PREFIX + '.' +  dsname+ '.hdf5', res)
         pvals = res.fa.fprob
         print('Min P-value: ' + str(np.nanmin(pvals)))
         res = res.samples[0, :]
         pl.figure()
         pl.hist(res, 100)
         print('Mapping measure back into original voxel space!')
-        map_voxels(ds.fa.voxel_indices, res, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'ANOVA.' + SPACE+'.'+dsname+ '.nii')
+        map_voxels(ds.fa.voxel_indices, res, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'ANOVA.' + TRAIN_PREFIX + '.' +  SPACE+'.'+dsname+ '.nii')
         print(DELIM1)
         print('Done\n')
     pl.show()
