@@ -85,7 +85,7 @@ def configure_cv(ds):
 
 
 def removeNaNColumns(ds) :
-    print('NaN Count: '+str(np.sum(np.isnan(ds.samples))))
+    print('NaN Column Count: '+str(np.sum(np.isnan(np.sum(ds.samples, axis=0)))))
     #### REMOVE ALL COLUMNS WHICH CONTAIN NAN
     ds = ds[:, ~np.isnan(np.sum(ds.samples, axis=0))]
     print('New dataset shape: ' + str(ds.shape))
