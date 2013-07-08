@@ -13,6 +13,10 @@ from tools import *
 EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
 CURRENT_TASK = 'reward' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
+SPACE = 'roi'
+#MASK = 'rmask.nii'
+MASK = 'brwROImask.nii'
+
 
 
 def get_chunks():
@@ -39,12 +43,12 @@ def main():
         volumes = volumes[0:128] 
         print(volumes)
         print(len(volumes))
-        ds = fmri_dataset(samples = volumes, targets = get_labels(), chunks = get_chunks(), mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', 'rmask.nii'))
+        ds = fmri_dataset(samples = volumes, targets = get_labels(), chunks = get_chunks(), mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
         print(ds.shape)
         print(ds.nfeatures)
         print(ds.targets)
         print(ds.chunks)
-        ds.save(os.path.join(EXPORT_DIR, CURRENT_TASK + '.'+subject_dir+'.full.hdf5'))
+        ds.save(os.path.join(EXPORT_DIR,  CURRENT_TASK + '.' + subject_dir + '.' + SPACE + '.hdf5'))
         ### PRE-PROCESSING TEST
         ds = preprocess(ds)
 

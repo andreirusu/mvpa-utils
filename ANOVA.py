@@ -13,7 +13,9 @@ from tools import *
 EXPERIMENT_DIR  = '../3_random_subjects'
 EXPORT_DIR      = '../datasets'
 TRAIN_PREFIX    = 'one_back'
-SPACE           = 'full'
+#TRAIN_PREFIX    = 'reward'
+#SPACE           = 'full'
+SPACE           = 'roi'
 
 
 def configure(ds):

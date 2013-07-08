@@ -27,7 +27,6 @@ random.seed(0)
 
 
 
-
 def partitioner():
     #return CustomPartitioner([([2], [1]), ([1], [2])]) 
     return NFoldPartitioner(cvtype=1) 
