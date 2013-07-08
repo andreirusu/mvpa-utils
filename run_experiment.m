@@ -22,8 +22,14 @@ EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects/';
 
 
 %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
+% cd(EXPERIMENT_DIR)
+% create_brain_masks_all_subjects
+
+
+%% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
 cd(EXPERIMENT_DIR)
-create_brain_masks_all_subjects
+create_ROIs_all_subjects
+
 
 
 %% PRE-PROCESS REST SESSIONS INDEPENDENTLY
