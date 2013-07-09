@@ -96,26 +96,33 @@ def configure_sl(ds, options):
 
 
 
-def configure_clf(ds): 
-    #clf = SMLR(lm = 1, seed = 0, ties = False, maxiter = 10000000) # Sparse (Multinomial) Logistic Regression (lm = lambda, regularization parameter)
-    clf = LinearCSVMC(C=1)
-    #clf = GNB()
+def configure_clf(ds, options): 
+    if options.CLF == 'gnb':
+        return GNB()
+    elif options.CLF == 'csvm': 
+        return LinearCSVMC(C=1)
+    elif options.CLF == 'smlr':
+        return SMLR(lm = 1, seed = 0, ties = False, maxiter = 1000000) 
+    else:
+        raise Error('Wrong CLF!')
+        return None 
+    '''
     fsel = SensitivityBasedFeatureSelection(
             OneWayAnova(),
             FixedNElementTailSelector(200, mode='select', tail='upper'))
             #FractionTailSelector(felements=0.01, mode='select', tail='upper'))
             #RangeElementSelector(lower=0.5, mode='select'))
     fclf = FeatureSelectionClassifier(clf, fsel)
+
     fclf.set_postproc(BinaryFxNode(mean_mismatch_error, 'targets'))
     return fclf
+    '''
 
 
+def configure_cv(ds, options):
+    #return CrossValidation(clf, CustomPartitioner(splitrule = [([1, 2, 3, 4, 5], [6, 7])], count=1, selection_strategy='first'))
+    return CrossValidation(configure_clf(ds, options), partitioner(options))
 
-def configure_cv(ds):
-    clf = configure_clf(ds)
-    #cv = CrossValidation(clf, NFoldPartitioner(cvtype=1))
-    cv = CrossValidation(clf, CustomPartitioner(splitrule = [([1, 2, 3, 4, 5], [6, 7])], count=1, selection_strategy='first'))
-    return cv
 
 
 def removeNaNColumns(ds) :
