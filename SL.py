@@ -43,7 +43,6 @@ def main(options):
         if options.PLOT :
             pl.figure()
             pl.hist(cvmeans, 100)
-        cvmeans[cvmeans<60] = 0
         print(DELIM1)
         print('Best accuracy: '+str(np.max(cvmeans)))
         print(DELIM1)
