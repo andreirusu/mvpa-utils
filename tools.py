@@ -46,6 +46,12 @@ def parseOptions():
             help="select NFEATURES top features")
     parser.add_option("-m", "--stats", dest="STATS", default='mean',
             help="the following statistic will be used: max | min | mean")
+    parser.add_option("-l", "--lambda", dest="LAMBDA", default=1, type='float',
+            help="regularization parameter for classifiers")
+    parser.add_option("-j", "--nproc", dest="NPROC", default=1, type='int',
+            help="number of threads used")
+
+
     (options, args) = parser.parse_args()
     
     print('Run parameters:')
@@ -69,21 +75,20 @@ def partitioner(options):
 
 
 def configure_sl_gnb(ds, options):
-    sl = sphere_gnbsearchlight(GNB(), partitioner(options), radius=options.SL_RADIUS)    
-    return sl
+    return sphere_gnbsearchlight(GNB(), partitioner(options), radius=options.SL_RADIUS, nproc=options.NPROC)    
 
 def configure_sl_lcsvm(ds, options):
-    clf = LinearCSVMC(C=1)
+    clf = LinearCSVMC(C=options.LAMBDA)
     cv = CrossValidation(clf, partitioner(options))
-    sl = sphere_searchlight(cv, radius=options.SL_RADIUS)    
+    sl = sphere_searchlight(cv, radius=options.SL_RADIUS, nproc=options.NPROC)    
     return sl
 
 
 def configure_sl_smlr(ds, options):
     # Sparse (Multinomial) Logistic Regression (lm = lambda, regularization parameter)
-    clf = SMLR(lm = 1, seed = 0, ties = False, maxiter = 100) 
+    clf = SMLR(lm = options.LAMBDA, seed = 0, ties = False, maxiter = 100) 
     cv = CrossValidation(clf, partitioner(options))
-    sl = sphere_searchlight(cv, radius=options.SL_RADIUS)    
+    sl = sphere_searchlight(cv, radius=options.SL_RADIUS, nproc=options.NPROC)    
     return sl
 
 
@@ -112,7 +117,7 @@ def fsel_sl_gnb(ds, options):
     else:
         raise NameError('Wrong STATS!')
         return None 
-    return sphere_gnbsearchlight(GNB(), HalfPartitioner(), radius=options.SL_RADIUS, postproc=proc)
+    return sphere_gnbsearchlight(GNB(), HalfPartitioner(), radius=options.SL_RADIUS, postproc=proc, nproc=options.NPROC)
     
 
 def fsel_sl_csvm(ds, options):
@@ -126,7 +131,7 @@ def fsel_sl_csvm(ds, options):
     else:
         raise NameError('Wrong STATS!')
         return None 
-    return sphere_searchlight(CrossValidation(LinearCSVMC(C=1), HalfPartitioner()), radius=options.SL_RADIUS, postproc=proc)
+    return sphere_searchlight(CrossValidation(LinearCSVMC(C=options.LAMBDA), HalfPartitioner()), radius=options.SL_RADIUS, postproc=proc, nproc=options.NPROC)
     
 
 
@@ -135,9 +140,11 @@ def configure_clf(ds, options):
     if options.CLF == 'gnb':
         clf = GNB()
     elif options.CLF == 'csvm': 
-        clf = LinearCSVMC(C=1)
+        clf = LinearCSVMC(C=options.LAMBDA)
+    elif options.CLF == 'nsvm': 
+        clf = LinearNuSVMC(nu=options.LAMBDA)
     elif options.CLF == 'smlr':
-        clf = SMLR(lm = 1, seed = 0, ties = False, maxiter = 1000000) 
+        clf = SMLR(lm = options.LAMBDA, seed = 0, ties = False, maxiter = 1000000) 
     else:
         raise NameError('Wrong CLF!')
         return None 
