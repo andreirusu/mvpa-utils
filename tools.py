@@ -40,6 +40,8 @@ def parseOptions():
             help="the specified classifier will be used: gnb | csvm | smlr")
     parser.add_option("-v", "--cv", dest="CV", default='kfold',
             help="the specified CV will be used: kfold | half | custom")
+    parser.add_option("-f", "--fsel", dest="FSEL", default='NONE',
+            help="the specified CV will be used: GNB_SL | ANOVA | NONE")
 
     (options, args) = parser.parse_args()
     
@@ -59,12 +61,14 @@ def partitioner(options):
     elif options.CV == 'half':
         return HalfPartitioner() 
     else:
-        raise Error('Wrong CLF!')
+        raise Error('Wrong Partitioner!')
         return None 
 
 
 def configure_sl_gnb(ds, options):
-    sl = sphere_gnbsearchlight(GNB(), partitioner(options), radius=options.SL_RADIUS)    
+    clf = GNB()
+    clf.set_postproc(BinaryFxNode(mean_mismatch_error, 'targets'))
+    sl = sphere_gnbsearchlight(clf, partitioner(options), radius=options.SL_RADIUS)    
     return sl
 
 def configure_sl_lcsvm(ds, options):
@@ -91,32 +95,42 @@ def configure_sl(ds, options):
     elif options.CLF == 'smlr':
         return configure_sl_smlr(ds, options)
     else:
-        raise Error('Wrong CLF!')
+        raise Error('Wrong SL!')
         return None 
 
 
 
 def configure_clf(ds, options): 
+    clf = None
     if options.CLF == 'gnb':
-        return GNB()
+        clf = GNB()
     elif options.CLF == 'csvm': 
-        return LinearCSVMC(C=1)
+        clf = LinearCSVMC(C=1)
     elif options.CLF == 'smlr':
-        return SMLR(lm = 1, seed = 0, ties = False, maxiter = 1000000) 
+        clf = SMLR(lm = 1, seed = 0, ties = False, maxiter = 1000000) 
     else:
         raise Error('Wrong CLF!')
         return None 
-    '''
-    fsel = SensitivityBasedFeatureSelection(
-            OneWayAnova(),
-            FixedNElementTailSelector(200, mode='select', tail='upper'))
-            #FractionTailSelector(felements=0.01, mode='select', tail='upper'))
-            #RangeElementSelector(lower=0.5, mode='select'))
+    fsel = None
+    if options.FSEL.upper() == 'NONE' :
+        return clf
+    elif options.FSEL.upper() == 'ANOVA' :
+        fsel = SensitivityBasedFeatureSelection(
+                OneWayAnova(),
+                FixedNElementTailSelector(1000, mode='select', tail='upper'))
+                #FractionTailSelector(felements=0.01, mode='select', tail='upper'))
+                #RangeElementSelector(lower=0.5, mode='select'))
+    elif options.FSEL.upper() == 'GNB_SL' :
+        fsel = SensitivityBasedFeatureSelection(
+                configure_sl_gnb(ds, options),
+                FixedNElementTailSelector(500, mode='select', tail='lower'))
+    else:
+        raise Error('Wrong FSEL!')
+        return None 
     fclf = FeatureSelectionClassifier(clf, fsel)
-
-    fclf.set_postproc(BinaryFxNode(mean_mismatch_error, 'targets'))
+    #fclf.set_postproc(BinaryFxNode(mean_mismatch_error, 'targets'))
     return fclf
-    '''
+    
 
 
 def configure_cv(ds, options):

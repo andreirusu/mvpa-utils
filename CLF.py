@@ -35,7 +35,7 @@ def main(options):
         cvmeans = 1 - np.mean(res.samples, axis=0)
         cvmeans = cvmeans*100
         print(DELIM)
-        print('Best mean accuracy: '+str(np.max(cvmeans)))
+        print('Mean accuracy: '+str(np.max(cvmeans)))
         print(DELIM)
         overall_mean_accuracy += np.max(cvmeans)
         count += 1
