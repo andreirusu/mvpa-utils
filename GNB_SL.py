@@ -17,6 +17,7 @@ def main(options):
 
     for dsname in contents :
         # get training data
+        res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
         ds = preprocess(train_ds)
@@ -24,7 +25,7 @@ def main(options):
         print(DELIM)
         measure = configure_sl(ds, options)
         res = measure(ds)
-        h5save('SL.R_'+str(options.SL_RADIUS)+'.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname+ '.hdf5', res)
+        h5save(res_name + '.hdf5', res)
         print(res.samples)
         cvmeans = 1 - np.mean(res.samples, axis=0)
         cvmeans = cvmeans*100
@@ -36,7 +37,7 @@ def main(options):
         print('Best mean accuracy: '+str(np.max(cvmeans)))
         print(DELIM1)
         print('Mapping measure back into original voxel space!')
-        map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname+ '.nii')
+        map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', res_name + '.nii')
         print('Done\n')
     pl.show()
 
