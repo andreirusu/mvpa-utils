@@ -26,15 +26,26 @@ def main(options):
         measure = configure_sl(ds, options)
         res = measure(ds)
         h5save(res_name + '.hdf5', res)
-        print(res.samples)
-        cvmeans = 1 - np.mean(res.samples, axis=0)
+        # apply statistics to results
+        cvmeans = 0
+        if options.STATS == 'mean':
+            cvmeans = 1 - np.mean(res.samples, axis=0)
+        elif options.STATS == 'min':
+            cvmeans = 1 - np.max(res.samples, axis=0)
+        elif options.STATS == 'max':
+            cvmeans = 1 - np.min(res.samples, axis=0)
+        else:
+            raise NameError('Wrong STATS!')
+            return None 
         cvmeans = cvmeans*100
+        print('Fold accuracies:')
+        print(cvmeans)
         if options.PLOT :
             pl.figure()
             pl.hist(cvmeans, 100)
         cvmeans[cvmeans<60] = 0
         print(DELIM1)
-        print('Best mean accuracy: '+str(np.max(cvmeans)))
+        print('Best accuracy: '+str(np.max(cvmeans)))
         print(DELIM1)
         print('Mapping measure back into original voxel space!')
         map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', res_name + '.nii')

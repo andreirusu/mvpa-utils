@@ -44,7 +44,8 @@ def parseOptions():
             help="uses the Feature SELection strategy: GNB_SL | ANOVA | NONE")
     parser.add_option("-n", "--nfeatures", dest="NFEATURES", default=500, type='int',
             help="select NFEATURES top features")
-
+    parser.add_option("-m", "--stats", dest="STATS", default='mean',
+            help="the following statistic will be used: max | min | mean")
     (options, args) = parser.parse_args()
     
     print('Run parameters:')
@@ -101,13 +102,31 @@ def configure_sl(ds, options):
 
 
 def fsel_sl_gnb(ds, options):
-    return sphere_gnbsearchlight(GNB(), NFoldPartitioner(cvtype=1), radius=options.SL_RADIUS, 
-                                        postproc=FxMapper('samples', np.mean, attrfx='merge'))
+    proc = None
+    if options.STATS == 'mean':
+       proc = FxMapper('samples', np.mean, attrfx='merge') 
+    elif options.STATS == 'min':
+        proc = FxMapper('samples', np.max, attrfx='merge') 
+    elif options.STATS == 'max':
+        proc = FxMapper('samples', np.min, attrfx='merge') 
+    else:
+        raise NameError('Wrong STATS!')
+        return None 
+    return sphere_gnbsearchlight(GNB(), HalfPartitioner(), radius=options.SL_RADIUS, postproc=proc)
     
 
 def fsel_sl_csvm(ds, options):
-    return sphere_searchlight(CrossValidation(LinearCSVMC(C=1), HalfPartitioner()), radius=options.SL_RADIUS, 
-                                        postproc=FxMapper('samples', np.mean, attrfx='merge'))
+    proc = None
+    if options.STATS == 'mean':
+       proc = FxMapper('samples', np.mean, attrfx='merge') 
+    elif options.STATS == 'min':
+        proc = FxMapper('samples', np.max, attrfx='merge') 
+    elif options.STATS == 'max':
+        proc = FxMapper('samples', np.min, attrfx='merge') 
+    else:
+        raise NameError('Wrong STATS!')
+        return None 
+    return sphere_searchlight(CrossValidation(LinearCSVMC(C=1), HalfPartitioner()), radius=options.SL_RADIUS, postproc=proc)
     
 
 

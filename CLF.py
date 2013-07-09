@@ -30,10 +30,10 @@ def main(options):
         measure = configure_cv(ds, options)
         res = measure(ds)
         h5save(res_name + '.hdf5', res)
-        print('Fold ERRORS:')
-        print(res.samples)
         cvmeans = 1 - np.mean(res.samples, axis=0)
         cvmeans = cvmeans*100
+        print('Fold accuracies:')
+        print(cvmeans)
         print(DELIM)
         print('Mean accuracy: '+str(np.max(cvmeans)))
         print(DELIM)
