@@ -4,8 +4,10 @@ from progress_bar import *
 from datetime import *
 from tools import *
 from optparse import OptionParser
+from pprint import pprint
 
 import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil
+
 
 import numpy as inp
 
@@ -40,8 +42,11 @@ def parseOptions():
             help="the specified CV will be used: kfold | half | custom")
 
     (options, args) = parser.parse_args()
-    print('Run parameters:' + str(options))
-    print('Args' + str(args))
+    
+    print('Run parameters:')
+    pprint(options)
+    print('Args: ')
+    pprint(args)
     return options
 
 
