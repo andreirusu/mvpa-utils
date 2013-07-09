@@ -68,8 +68,7 @@ def partitioner(options):
 
 
 def configure_sl_gnb(ds, options):
-    clf = GNB()
-    sl = sphere_gnbsearchlight(clf, partitioner(options), radius=options.SL_RADIUS, postproc=mean_sample())    
+    sl = sphere_gnbsearchlight(GNB(), partitioner(options), radius=options.SL_RADIUS)    
     return sl
 
 def configure_sl_lcsvm(ds, options):
@@ -101,6 +100,17 @@ def configure_sl(ds, options):
 
 
 
+def fsel_sl_gnb(ds, options):
+    return sphere_gnbsearchlight(GNB(), NFoldPartitioner(cvtype=1), radius=options.SL_RADIUS, 
+                                        postproc=FxMapper('samples', np.mean, attrfx='merge'))
+    
+
+def fsel_sl_csvm(ds, options):
+    return sphere_searchlight(CrossValidation(LinearCSVMC(C=1), HalfPartitioner()), radius=options.SL_RADIUS, 
+                                        postproc=FxMapper('samples', np.mean, attrfx='merge'))
+    
+
+
 def configure_clf(ds, options): 
     clf = None
     if options.CLF == 'gnb':
@@ -123,13 +133,16 @@ def configure_clf(ds, options):
                 #RangeElementSelector(lower=0.5, mode='select'))
     elif options.FSEL.upper() == 'GNB_SL' :
         fsel = SensitivityBasedFeatureSelection(
-                configure_sl_gnb(ds, options),
+                fsel_sl_gnb(ds, options),
+                FixedNElementTailSelector(options.NFEATURES, mode='select', tail='lower'))
+    elif options.FSEL.upper() == 'CSVM_SL' :
+        fsel = SensitivityBasedFeatureSelection(
+                fsel_sl_csvm(ds, options),
                 FixedNElementTailSelector(options.NFEATURES, mode='select', tail='lower'))
     else:
         raise NameError('Wrong FSEL!')
         return None 
     fclf = FeatureSelectionClassifier(clf, fsel)
-    #fclf.set_postproc(BinaryFxNode(mean_mismatch_error, 'targets'))
     return fclf
     
 
