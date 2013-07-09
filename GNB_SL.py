@@ -36,7 +36,7 @@ def main(options):
         print('Best mean accuracy: '+str(np.max(cvmeans)))
         print(DELIM1)
         print('Mapping measure back into original voxel space!')
-        map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', 'SL.R_'+str(options.SL_RADIUS)+'.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname+ '.nii')
+        map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname+ '.nii')
         print('Done\n')
     pl.show()
 

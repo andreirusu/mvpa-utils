@@ -23,37 +23,48 @@ random.seed(0)
 def parseOptions():
     parser = OptionParser()
     parser.add_option("-d", "--dir", dest="EXPERIMENT_DIR", default='../3_random_subjects',
-                      help="load datasets from EXPERIMENT_DIR")
+            help="load datasets from EXPERIMENT_DIR")
     parser.add_option("-s", "--space", dest="SPACE", default = 'roi',
-                      help="read dataset in specified SPACE", metavar="SPACE")
+            help="read dataset in specified SPACE", metavar="SPACE")
     parser.add_option("-t", "--task", dest="TRAIN_PREFIX", default='one_back',
-                      help="the specified TASK will be loaded")
+            help="the specified TASK will be loaded")
     parser.add_option("-x", "--export", dest="EXPORT_DIR", default='../datasets',
-                      help="write results in EXPORT_DIR")
-    parser.add_option("-p", "--plot",
-                      action="store_true", dest="PLOT", default=False,
-                      help="diplay plots")
+            help="write results in EXPORT_DIR")
+    parser.add_option("-p", "--plot", action="store_true", dest="PLOT", default=False,
+            help="diplay plots")
     parser.add_option("-r", "--radius", dest="SL_RADIUS", default=3, type='int',
-                      help="user radius SL_RADIUS in searchlight measure")
+            help="user radius SL_RADIUS in searchlight measure")
+    parser.add_option("-c", "--classifier", dest="CLF", default='gnb',
+            help="the specified classifier will be used: gnb | csvm | smlr")
+    parser.add_option("-v", "--cv", dest="CV", default='kfold',
+            help="the specified CV will be used: kfold | half | custom")
+
     (options, args) = parser.parse_args()
-    print(options)
-    print(args)
+    print('Run parameters:' + str(options))
+    print('Args' + str(args))
     return options
 
 
 
-def partitioner():
-    #return CustomPartitioner([([2], [1]), ([1], [2])]) 
-    return NFoldPartitioner(cvtype=1) 
+def partitioner(options):
+    if options.CV == 'custom':
+        return CustomPartitioner([([2], [1]), ([1], [2])]) 
+    elif options.CV == 'kfold':
+        return NFoldPartitioner(cvtype=1) 
+    elif options.CV == 'half':
+        return HalfPartitioner() 
+    else:
+        raise Error('Wrong CLF!')
+        return None 
 
 
 def configure_sl_gnb(ds, options):
-    sl = sphere_gnbsearchlight(GNB(), partitioner(), radius=options.SL_RADIUS)    
+    sl = sphere_gnbsearchlight(GNB(), partitioner(options), radius=options.SL_RADIUS)    
     return sl
 
 def configure_sl_lcsvm(ds, options):
     clf = LinearCSVMC(C=1)
-    cv = CrossValidation(clf, partitioner())
+    cv = CrossValidation(clf, partitioner(options))
     sl = sphere_searchlight(cv, radius=options.SL_RADIUS)    
     return sl
 
@@ -61,18 +72,22 @@ def configure_sl_lcsvm(ds, options):
 def configure_sl_smlr(ds, options):
     # Sparse (Multinomial) Logistic Regression (lm = lambda, regularization parameter)
     clf = SMLR(lm = 1, seed = 0, ties = False, maxiter = 100) 
-    cv = CrossValidation(clf, partitioner())
+    cv = CrossValidation(clf, partitioner(options))
     sl = sphere_searchlight(cv, radius=options.SL_RADIUS)    
     return sl
 
 
 
 def configure_sl(ds, options):
-    return configure_sl_gnb(ds, options)
-    #return configure_sl_lcsvm(ds, options)
-    #return configure_sl_smlr(ds, options)
-
-   
+    if options.CLF == 'gnb':
+        return configure_sl_gnb(ds, options)
+    elif options.CLF == 'csvm': 
+        return configure_sl_lcsvm(ds, options)
+    elif options.CLF == 'smlr':
+        return configure_sl_smlr(ds, options)
+    else:
+        raise Error('Wrong CLF!')
+        return None 
 
 
 
