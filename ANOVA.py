@@ -1,14 +1,12 @@
 from mvpa2.suite import *
-import matplotlib
-import scipy
+from subprocess import *
+from progress_bar import *
+from datetime import *
+from tools import *
+
+import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil
+
 import numpy as inp
-import os
-import glob
-import h5py
-import random
-
-
-from tools import * 
 
 EXPERIMENT_DIR  = '../3_random_subjects'
 EXPORT_DIR      = '../datasets'
