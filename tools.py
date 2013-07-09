@@ -3,6 +3,7 @@ from subprocess import *
 from progress_bar import *
 from datetime import *
 from tools import *
+from optparse import OptionParser
 
 import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil
 
@@ -13,10 +14,31 @@ import numpy as inp
 EPSILON = 1e-5
 DELIM   =   '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 DELIM1  =   '#######################################################################################'
-SL_RADIUS   = 3
 
 ## MAKE EXPERIMENTS FULLY REPEATABLE
 random.seed(0)
+
+
+
+def parseOptions():
+    parser = OptionParser()
+    parser.add_option("-d", "--dir", dest="EXPERIMENT_DIR", default='../3_random_subjects',
+                      help="load datasets from EXPERIMENT_DIR")
+    parser.add_option("-s", "--space", dest="SPACE", default = 'roi',
+                      help="read dataset in specified SPACE", metavar="SPACE")
+    parser.add_option("-t", "--task", dest="TRAIN_PREFIX", default='one_back',
+                      help="the specified TASK will be loaded")
+    parser.add_option("-x", "--export", dest="EXPORT_DIR", default='../datasets',
+                      help="write results in EXPORT_DIR")
+    parser.add_option("-p", "--plot",
+                      action="store_true", dest="PLOT", default=False,
+                      help="diplay plots")
+    parser.add_option("-r", "--radius", dest="SL_RADIUS", default=3, type='int',
+                      help="user radius SL_RADIUS in searchlight measure")
+    (options, args) = parser.parse_args()
+    print(options)
+    print(args)
+    return options
 
 
 
@@ -25,30 +47,30 @@ def partitioner():
     return NFoldPartitioner(cvtype=1) 
 
 
-def configure_sl_gnb(ds):
-    sl = sphere_gnbsearchlight(GNB(), partitioner(), radius=SL_RADIUS)    
+def configure_sl_gnb(ds, options):
+    sl = sphere_gnbsearchlight(GNB(), partitioner(), radius=options.SL_RADIUS)    
     return sl
 
-def configure_sl_lcsvm(ds):
+def configure_sl_lcsvm(ds, options):
     clf = LinearCSVMC(C=1)
     cv = CrossValidation(clf, partitioner())
-    sl = sphere_searchlight(cv, radius=SL_RADIUS)    
+    sl = sphere_searchlight(cv, radius=options.SL_RADIUS)    
     return sl
 
 
-def configure_sl_smlr(ds):
+def configure_sl_smlr(ds, options):
     # Sparse (Multinomial) Logistic Regression (lm = lambda, regularization parameter)
     clf = SMLR(lm = 1, seed = 0, ties = False, maxiter = 100) 
     cv = CrossValidation(clf, partitioner())
-    sl = sphere_searchlight(cv, radius=SL_RADIUS)    
+    sl = sphere_searchlight(cv, radius=options.SL_RADIUS)    
     return sl
 
 
 
-def configure_sl(ds):
-    return configure_sl_gnb(ds)
-    #return configure_sl_lcsvm(ds)
-    #return configure_sl_smlr(ds)
+def configure_sl(ds, options):
+    return configure_sl_gnb(ds, options)
+    #return configure_sl_lcsvm(ds, options)
+    #return configure_sl_smlr(ds, options)
 
    
 

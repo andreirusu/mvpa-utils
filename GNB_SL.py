@@ -8,48 +8,41 @@ import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, te
 
 import numpy as inp
 
-EXPERIMENT_DIR  = '../3_random_subjects'
-EXPORT_DIR      = '../datasets'
-TRAIN_PREFIX    = 'one_back'
-#TRAIN_PREFIX    = 'reward'
-#SPACE           = 'full'
-SPACE           = 'roi'
-
-
-def main():
+def main(options):
     print(DELIM1)
-    os.chdir(EXPERIMENT_DIR)
+    os.chdir(options.EXPERIMENT_DIR)
     contents=glob.glob('s*')
 
-    os.chdir(EXPORT_DIR)
+    os.chdir(options.EXPORT_DIR)
 
     for dsname in contents :
         # get training data
-        train_ds = h5load(TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5')
+        train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
         ds = preprocess(train_ds)
         print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
-        measure = configure_sl(ds)
+        measure = configure_sl(ds, options)
         res = measure(ds)
-        h5save('SL.R_'+str(SL_RADIUS)+'.'+TRAIN_PREFIX + '.' +  SPACE + '.' + dsname+ '.hdf5', res)
+        h5save('SL.R_'+str(options.SL_RADIUS)+'.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname+ '.hdf5', res)
         print(res.samples)
         cvmeans = 1 - np.mean(res.samples, axis=0)
-        pl.figure()
         cvmeans = cvmeans*100
-        pl.hist(cvmeans, 100)
+        if options.PLOT :
+            pl.figure()
+            pl.hist(cvmeans, 100)
         cvmeans[cvmeans<60] = 0
         print(DELIM1)
         print('Best mean accuracy: '+str(np.max(cvmeans)))
         print(DELIM1)
         print('Mapping measure back into original voxel space!')
-        map_voxels(ds.fa.voxel_indices, cvmeans, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'SL.R_'+str(SL_RADIUS)+'.'+TRAIN_PREFIX + '.' +  SPACE + '.' + dsname+ '.nii')
+        map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', 'SL.R_'+str(options.SL_RADIUS)+'.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname+ '.nii')
         print('Done\n')
     pl.show()
 
 
 if __name__ == "__main__" :
-    main()
+    main(parseOptions())
 
 
 if __debug__:
