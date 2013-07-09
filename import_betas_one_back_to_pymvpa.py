@@ -13,9 +13,10 @@ from tools import *
 EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
-SPACE = 'full' #'roi'
-MASK = 'rmask.nii'
-#MASK = 'brwROImask.nii'
+SPACE = 'roi'
+#SPACE = 'full'
+#MASK = 'rmask.nii'
+MASK = 'brwROImask.nii'
 
 def get_chunks():
     chunks = np.arange(1,6).repeat(2*6)
