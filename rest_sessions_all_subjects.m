@@ -96,6 +96,9 @@ for crun = 1:nrun
     for l = 1:4;
        dirstr = [sessionPaths{crun}, '/sess',num2str(l), '/PROC'];
        disp(dirstr)
+       if ~ exist(dirstr, 'dir') ;
+           continue;
+       end
        cd(dirstr)
        %%%%% TODO: INSERT CARLTON'S CODE HERE %%%%%%%
        [files,dirs] = spm_select('FPList', dirstr,'^srfM.*');
