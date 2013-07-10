@@ -11,18 +11,18 @@ EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional';
 
 
 %% DICOM IMPORT ALL SUBJECTS IN THE EXPERIMENT_DIR => PROC DIRECTORIES
-% cd(EXPERIMENT_DIR)
-% dicom_import_all_subjects
+cd(EXPERIMENT_DIR)
+dicom_import_all_subjects
 
 
 %% PRE-PROCESS ALL FUNCTIONAL VOLUMES IN PROC DIRs. => FINAL DIRs.
-% cd(EXPERIMENT_DIR)
-% functional_all_subjects
+cd(EXPERIMENT_DIR)
+functional_all_subjects
 
 
-% %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
-% cd(EXPERIMENT_DIR)
-% create_brain_masks_all_subjects
+%% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
+cd(EXPERIMENT_DIR)
+create_brain_masks_all_subjects
 
 
 %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
@@ -30,10 +30,9 @@ cd(EXPERIMENT_DIR)
 create_ROIs_all_subjects
 
 
-
-% % PRE-PROCESS REST SESSIONS INDEPENDENTLY
-% cd(EXPERIMENT_DIR)
-% rest_sessions_all_subjects;
+%% PRE-PROCESS REST SESSIONS INDEPENDENTLY
+cd(EXPERIMENT_DIR)
+rest_sessions_all_subjects;
 
 
 %% GO BACK TO CODE DIR

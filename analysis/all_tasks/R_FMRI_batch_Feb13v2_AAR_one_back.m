@@ -30,7 +30,10 @@ dir_base    = '/Volumes/SAMSUNG/mvpa/functional';%'/Users/dharshan/Documents/SEL
 %SPECIFY WHAT THINGS TO DO: 
 quick_test_var = 0; %1 is a test (i.e. just for subject 1). 0 for full run of all subjects 1:n
 
-curr_sub_ind = [7, 10, 20] ; % %CURRENT NUMBER OF SUBJECTS
+%curr_sub_ind = [7, 10, 20] ; % %CURRENT NUMBER OF SUBJECTS
+curr_sub_ind = 1:21 ; % %CURRENT NUMBER OF SUBJECTS
+
+disp(curr_sub_ind);
 
 analy_ind = 1; %DEFINE EVEN FOR BATCH indices of analyses to run for FIRST LEVEL
 analy_rfx_ind = 0; %DEFINE FOR BATCH for RFX analysis

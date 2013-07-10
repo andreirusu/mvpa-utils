@@ -150,7 +150,7 @@ end
 disp(['Fist vol: ', num2str(first), '; Last vol: ', num2str(last), '; Files: ', num2str(last - first + 1)])
 
 str = char(filelist(1,1));
-str = strrep(strrep(str, 'nii', 'txt'),'fMQ', 'rp_fmQ');
+str = strrep(strrep(str, 'nii', 'txt'),'fMQ', 'rp_fMQ');
 disp(str);
 [a,b,c,d,e,f] = textread(str, '%f%f%f%f%f%f');
 %figure(9); imagesc(cat(2, a(first:last), b(first:last), c(first:last), d(first:last), e(first:last), f(first:last)))
