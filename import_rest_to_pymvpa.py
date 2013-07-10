@@ -6,24 +6,36 @@ import os
 import glob
 import h5py
 
+from tools import *
 
-EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
+
+#EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
 #EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'
 CURRENT_TASK = 'rest' # 'reward' also supported
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
+SPACE = 'roi'
+#SPACE = 'full'
+#MASK = 'rmask.nii'
+MASK = 'brwROImask.nii'
+
 
 
 def import_session(subject_dir, sess):
     path = os.path.join(EXPERIMENT_DIR, subject_dir, CURRENT_TASK, sess, 'PROC', 'out.nii')
     print('Importing files from: ' + path)
-    ds = fmri_dataset(samples = path, mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', 'rmask.nii'))
-    ds.targets = np.zeros(ds.shape[1])
-    ds.chunks = np.zeros(ds.shape[1])
+    ds = fmri_dataset(samples = path, mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
+    print(ds.shape)
+    ds.targets = np.ones(ds.shape[0]) * -1
+    ds.chunks = np.ones(ds.shape[0]) * 10
+    ds = dataset_wizard(samples=ds.samples, targets=ds.targets, chunks=ds.chunks)
     print(ds.shape)
     print(ds.nfeatures)
     print(ds.targets)
     print(ds.chunks)
-    ds.save(os.path.join(EXPERIMENT_DIR, EXPORT_DIR, CURRENT_TASK + '.'+subject_dir+'.'+sess+'.full.hdf5'))
+    ds.save(os.path.join(EXPERIMENT_DIR, EXPORT_DIR, CURRENT_TASK + '.'+subject_dir+'.'+sess +'.' + SPACE  +'.hdf5'))
+    ### PRE-PROCESSING TEST
+    ds = preprocess(ds)
 
 
 
