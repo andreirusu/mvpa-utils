@@ -65,9 +65,7 @@ def parseOptions():
 
 
 def partitioner(options):
-    if options.CV == 'custom':
-        return CustomPartitioner([([2], [1]), ([1], [2])]) 
-    elif options.CV == 'kfold':
+    if options.CV == 'kfold':
         return NFoldPartitioner(cvtype=1) 
     elif options.CV == 'half':
         return HalfPartitioner() 
