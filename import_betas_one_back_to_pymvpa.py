@@ -10,7 +10,8 @@ from tools import *
 
 
 #EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
+#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 SPACE = 'roi'
