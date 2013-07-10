@@ -30,6 +30,8 @@ def parseOptions():
             help="read dataset in specified SPACE", metavar="SPACE")
     parser.add_option("-t", "--task", dest="TRAIN_PREFIX", default='one_back',
             help="the specified TASK will be loaded")
+    parser.add_option("-o", "--test", dest="TEST_PREFIX", default='reward',
+            help="the specified TEST set will be loaded")
     parser.add_option("-x", "--export", dest="EXPORT_DIR", default='../datasets',
             help="write results in EXPORT_DIR")
     parser.add_option("-p", "--plot", action="store_true", dest="PLOT", default=False,
@@ -320,7 +322,7 @@ def preprocess_train_and_test(train_ds, test_ds):
    # test_ds.samples[test_ds.samples > 5] = 5
     #### check for extremes
     print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
-    print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMax test value: ' + str(np.mean(test_ds.samples)))
+    print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
     print('Max train value: ' + str(np.max(train_ds.samples)) + '\nMax test value: ' + str(np.max(test_ds.samples)))
     #### Z-SCORE
     print('Z-scoring...')
@@ -328,7 +330,7 @@ def preprocess_train_and_test(train_ds, test_ds):
     zscore(test_ds, chunks_attr='chunks')
     #### check for extremes
     print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
-    print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMax test value: ' + str(np.mean(test_ds.samples)))
+    print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
     print('Max train value: ' + str(np.max(train_ds.samples)) + '\nMax test value: ' + str(np.max(test_ds.samples)))
     ## reject datasets if they contain NaNs
     print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
