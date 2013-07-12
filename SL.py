@@ -15,6 +15,11 @@ def main(options):
 
     os.chdir(options.EXPORT_DIR)
 
+    ### GLOBAL STATS
+    count = 0
+    overall_mean_best_measure = 0
+
+
     for dsname in contents :
         # get training data
         res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
@@ -43,13 +48,19 @@ def main(options):
         if options.PLOT :
             pl.figure()
             pl.hist(cvmeans, 100)
-        print(DELIM1)
+        print(DELIM)
+        count += 1
+        overall_mean_best_measure += np.max(cvmeans)
         print('Best accuracy: '+str(np.max(cvmeans)))
-        print(DELIM1)
+        print(DELIM)
         print('Mapping measure back into original voxel space!')
         map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', res_name + '.nii')
-        print('Done\n')
     pl.show()
+    overall_mean_best_measure /= count
+    print(DELIM1)
+    print('Overall mean best measure: '+str(overall_mean_best_measure))
+    print(DELIM1)
+    print('Done\n')
 
 
 if __name__ == "__main__" :
