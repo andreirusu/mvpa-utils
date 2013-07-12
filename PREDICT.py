@@ -8,12 +8,9 @@ import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, te
 
 import numpy as inp
 
-def process_session(subject_dir, sess, options):
-    # get training data
-    train_path = options.TRAIN_PREFIX + '.' + subject_dir + '.' + options.SPACE + '.hdf5'
-    print('Loading: ' + train_path)
-    train_ds = h5load(train_path)
-    ## get test data
+def process_session(subject_dir, sess, options, train_ds):
+    print(DELIM)
+        ## get test data
     test_path =  options.TEST_PREFIX + '.'+subject_dir+'.'+sess +'.' + options.SPACE  +'.hdf5'
     print('Loading: ' + test_path)
     test_ds = h5load(test_path)
@@ -37,14 +34,22 @@ def process_session(subject_dir, sess, options):
 
 def process_subject(subject_dir, options):
     print('Subject: ' + subject_dir)
+    # get sessions
     os.chdir(os.path.join(options.EXPERIMENT_DIR, subject_dir, options.TEST_PREFIX))
     print('Looking for sessions in: ' + os.getcwd())
-    sessions = glob.glob('sess*')
-    os.chdir(os.path.join('..', '..', options.EXPORT_DIR))
+    sessions = glob.glob('sess*')    
     print('Found: ' + str(sessions))
+    os.chdir(os.path.join('..', '..', options.EXPORT_DIR))
+    # get training data
+    train_path = options.TRAIN_PREFIX + '.' + subject_dir + '.' + options.SPACE + '.hdf5'
+    print('Loading: ' + train_path)
+    train_ds = h5load(train_path)
+    # process test data
     for sess in sessions :
-        process_session(subject_dir, sess, options)
-    
+        process_session(subject_dir, sess, options, train_ds)
+
+
+
 def main(options):
     os.chdir(options.EXPERIMENT_DIR)
     print('Working in '+os.getcwd())
