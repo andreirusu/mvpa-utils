@@ -25,9 +25,13 @@ def process_session(subject_dir, sess, options):
     preds = clf(test_ds)
     #print(preds.samples)
     #print(test_ds.targets)
+    print(DELIM1)
     for cls in np.unique(train_ds.targets) :
         print(cls, np.sum(preds.samples == cls))
-
+    # compute accuracy if labels are available
+    if not -1 in test_ds.targets :
+        print('Accuracy: ' + str(np.sum(preds.samples.T == test_ds.targets)*100.0/test_ds.targets.size))
+    print(DELIM1)
 
 
 
