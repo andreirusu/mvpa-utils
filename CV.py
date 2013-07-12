@@ -28,16 +28,16 @@ def main(options):
         print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
         measure = configure_cv(ds, options)
-        res = measure(ds)
-        h5save(res_name + '.hdf5', res)
-        cvmeans = 1 - np.mean(res.samples, axis=0)
-        cvmeans = cvmeans*100
+        res = measure(ds) # returns errors
+        cvmeans = (1 - res.samples) * 100 # rescales and returns accuracies
         print('Fold accuracies:')
         print(cvmeans)
+        h5save(res_name + '.hdf5', res)
         print(DELIM)
-        print('Mean accuracy: '+str(np.max(cvmeans)))
+        mean_accuracy = np.mean(cvmeans)
+        print('Mean accuracy: '+str(mean_accuracy))
         print(DELIM)
-        overall_mean_accuracy += np.max(cvmeans)
+        overall_mean_accuracy += mean_accuracy
         count += 1
     print(DELIM1)
     overall_mean_accuracy /= count
