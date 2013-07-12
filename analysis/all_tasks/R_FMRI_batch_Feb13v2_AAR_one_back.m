@@ -63,6 +63,8 @@ if strcmp(task_prfx,'reward')
     load 'sub_stuff_R_ENC_v3.mat'; %has all SUBJECTS inside
     param.num_sess=2;
 elseif strcmp(task_prfx,'one_back')
+    load 'sub_stuff_R_ENC_v3.mat'; %has all SUBJECTS inside
+    all_sub_R_ENC = all_sub;
     load sub_stuff_R_ONEBACK_v1.mat %MISSING SUBs 1 and 2 (who need onsets created)
     param.num_sess=5; %number of sessions
 end
@@ -100,7 +102,7 @@ if run_des_mx_var==1;
             
             %specify and execute create design matrix file
             des_mx_file=['mk_des_mx_' task_prfx '_analy_' num2str(analy) '_preproc']; %name of relevant design matrix function
-            feval(des_mx_file,all_sub,param); %execute function
+            feval(des_mx_file,all_sub,param, all_sub_R_ENC); %execute function
             
             %print to screen
             fprintf('Just finished design matrix for subject %d in analysis %d',curr_sub,analy);

@@ -1,4 +1,4 @@
-function   mk_des_mx_one_back_analy_1_preproc(all_sub,param) %*change     need to address function file from file that loads up subject specific data ***_____________IF VARIABLES CHANGED *********
+function   mk_des_mx_one_back_analy_1_preproc(all_sub,param, all_sub_R_ENC) %*change     need to address function file from file that loads up subject specific data ***_____________IF VARIABLES CHANGED *********
 
 
 disp('>>>>>>> Using PREPROC version of design matrix building function!')
@@ -53,120 +53,70 @@ targ_dur=0;
 i=1;
 
 cond=0;
-%{
-cond=1;
-SPM.Sess(i).U(cond).name      = {'chair'}; 
-SPM.Sess(i).U(cond).ons       = all_sub(curr_sub).the_stuff.chair_onsets'; %
-SPM.Sess(i).U(cond).dur       = repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-SPM.Sess(i).U(cond).P(1).name = 'time';
-SPM.Sess(i).U(cond).P(1).P    = all_sub(curr_sub).the_stuff.chair_onsets'; %
-SPM.Sess(i).U(cond).P(1).h    = 1; %LINEAR
-%}
 
 %%%% THIS WILL CREATE 0.7s events
 regress_volumes = true;
 
 chair_onsets = all_sub(curr_sub).the_stuff.chair_onsets';
-
-% for j=1:size(chair_onsets,1) 
-%     
-%     if regress_volumes == true 
-%         for l = 1:10
-%             cond=cond+1;
-%             SPM.Sess(i).U(cond).name        =   {['chair_' num2str(j) '_' num2str(l)]};
-%             SPM.Sess(i).U(cond).ons         =   chair_onsets(j) + (l-1)*2 ;
-%             SPM.Sess(i).U(cond).dur         =   0.7 ; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-%             SPM.Sess(i).U(cond).P(1).name   =   'none'; %'time';
-%         end
-%     else 
-%         cond=cond+1;
-%         SPM.Sess(i).U(cond).name        =   {['chair_' num2str(j)]};
-%         SPM.Sess(i).U(cond).ons         =   chair_onsets(j);
-%         SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-%         SPM.Sess(i).U(cond).P(1).name   =   'none'; %'time';
-%     end
-% end
-
-
-%%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
-if regress_volumes == true 
-    for j=1:size(chair_onsets,1) 
-        for l = 1:6
-            cond=cond+1;
-            SPM.Sess(i).U(cond).name        =   {['chair_' num2str(j) '_' num2str(l)]};
-            SPM.Sess(i).U(cond).ons         =   chair_onsets(j) + (l-1)*SPM.xY.RT;
-            SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-            SPM.Sess(i).U(cond).P(1).name   =   'none';
-        end
-    end
-end
-
-%{
-cond=cond+1;
-SPM.Sess(i).U(cond).name      = {'build'};
-SPM.Sess(i).U(cond).ons       = all_sub(curr_sub).the_stuff.build_onsets'; %
-SPM.Sess(i).U(cond).dur       = repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-SPM.Sess(i).U(cond).P(1).name = 'time';
-SPM.Sess(i).U(cond).P(1).P    = all_sub(curr_sub).the_stuff.build_onsets'; %
-SPM.Sess(i).U(cond).P(1).h    = 1; %LINEAR
-cond=cond+1;
-%}
-
 build_onsets = all_sub(curr_sub).the_stuff.build_onsets';
 
-% %%%% THIS TRIES TO REGRESS OUT INDIVIDUAL PRESENTATIONS IN A BLOCK
-% for j=1:size(chair_onsets,1) 
-%     
-%     if regress_volumes == true 
-%         for l = 1:10
-%             cond=cond+1;
-%             SPM.Sess(i).U(cond).name        =   {['build_' num2str(j) '_' num2str(l)]};
-%             SPM.Sess(i).U(cond).ons         =   build_onsets(j) + (l-1)*2;
-%             SPM.Sess(i).U(cond).dur         =   0.7; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-%             SPM.Sess(i).U(cond).P(1).name   =   'none';
-%         end
-%     else
-%         cond=cond+1;
-%         SPM.Sess(i).U(cond).name        =   {['build_' num2str(j)]};
-%         SPM.Sess(i).U(cond).ons         =   build_onsets(j);
-%         SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-%         SPM.Sess(i).U(cond).P           =   nan;
-%     end
-% end
 
-load('../../../functional_preprocessing_data.mat')
-first = Inf;
-last = Inf;
-for l=1:size(filelist,1)
-    indices = strfind(char(filelist(l,1)), 'one_back');
-
-    if size(indices,1) > 0 
-        if first == Inf 
-            first = l;
-        end
-        last = l;
-    end
-end
-disp(['Fist vol: ', num2str(first), '; Last vol: ', num2str(last), '; Files: ', num2str(last - first + 1)])
-
-str = char(filelist(1,1));
-str = strrep(strrep(str, 'nii', 'txt'),'fMQ', 'rp_fMQ');
-disp(str);
-[a,b,c,d,e,f] = textread(str, '%f%f%f%f%f%f');
-%figure(9); imagesc(cat(2, a(first:last), b(first:last), c(first:last), d(first:last), e(first:last), f(first:last)))
-
-%%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
-if regress_volumes == true 
-    for j=1:size(build_onsets,1) 
-        for l = 1:6
-            cond=cond+1;
-            SPM.Sess(i).U(cond).name        =   {['build_' num2str(j) '_' num2str(l)]};
-            SPM.Sess(i).U(cond).ons         =   build_onsets(j) + (l-1)*SPM.xY.RT;
-            SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-            SPM.Sess(i).U(cond).P(1).name   =   'none';
+if all_sub_R_ENC(curr_sub).group == 1 ;
+    %%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
+    if regress_volumes == true 
+        for j=1:size(chair_onsets,1) 
+            for l = 1:6
+                cond=cond+1;
+                SPM.Sess(i).U(cond).name        =   {['chair_' num2str(j) '_' num2str(l)]};
+                SPM.Sess(i).U(cond).ons         =   chair_onsets(j) + (l-1)*SPM.xY.RT;
+                SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+                SPM.Sess(i).U(cond).P(1).name   =   'none';
+            end
         end
     end
+    %%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
+    if regress_volumes == true 
+        for j=1:size(build_onsets,1) 
+            for l = 1:6
+                cond=cond+1;
+                SPM.Sess(i).U(cond).name        =   {['build_' num2str(j) '_' num2str(l)]};
+                SPM.Sess(i).U(cond).ons         =   build_onsets(j) + (l-1)*SPM.xY.RT;
+                SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+                SPM.Sess(i).U(cond).P(1).name   =   'none';
+            end
+        end
+    end
+elseif all_sub_R_ENC(curr_sub).group == 2 ;
+    %%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
+    if regress_volumes == true 
+        for j=1:size(build_onsets,1) 
+            for l = 1:6
+                cond=cond+1;
+                SPM.Sess(i).U(cond).name        =   {['build_' num2str(j) '_' num2str(l)]};
+                SPM.Sess(i).U(cond).ons         =   build_onsets(j) + (l-1)*SPM.xY.RT;
+                SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+                SPM.Sess(i).U(cond).P(1).name   =   'none';
+            end
+        end
+    end
+    %%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
+    if regress_volumes == true 
+        for j=1:size(chair_onsets,1) 
+            for l = 1:6
+                cond=cond+1;
+                SPM.Sess(i).U(cond).name        =   {['chair_' num2str(j) '_' num2str(l)]};
+                SPM.Sess(i).U(cond).ons         =   chair_onsets(j) + (l-1)*SPM.xY.RT;
+                SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+                SPM.Sess(i).U(cond).P(1).name   =   'none';
+            end
+        end
+    end
+else
+    error 'Wrong group'
+    return;
 end
+
+
 
 
 SPM.Sess(i).U(cond).name      = {'scrchair'};
@@ -212,6 +162,27 @@ blk_eff4=[zeros(SPM.list_nscan(1),1);zeros(SPM.list_nscan(2),1);zeros(SPM.list_n
 
 
 %MOVT REGRESSORS PLUS 1 BLOCK EFFECTS
+
+load('../../../functional_preprocessing_data.mat')
+first = Inf;
+last = Inf;
+for l=1:size(filelist,1)
+    indices = strfind(char(filelist(l,1)), 'one_back');
+
+    if size(indices,1) > 0 
+        if first == Inf 
+            first = l;
+        end
+        last = l;
+    end
+end
+disp(['Fist vol: ', num2str(first), '; Last vol: ', num2str(last), '; Files: ', num2str(last - first + 1)])
+
+str = char(filelist(1,1));
+str = strrep(strrep(str, 'nii', 'txt'),'fMQ', 'rp_fMQ');
+disp(str);
+[a,b,c,d,e,f] = textread(str, '%f%f%f%f%f%f');
+%figure(9); imagesc(cat(2, a(first:last), b(first:last), c(first:last), d(first:last), e(first:last), f(first:last)))
 
 SPM.Sess(i).C.C    = [a(first:last) b(first:last) c(first:last) d(first:last) e(first:last) f(first:last) blk_eff1 blk_eff2 blk_eff3 blk_eff4];          % [n x c double] covariates
 SPM.Sess(i).C.name = {'X','Y','Z','x','y','z' 'blockeff1' 'blockeff2' 'blockeff3' 'blockeff4'};   % [1 x c cell]   names
