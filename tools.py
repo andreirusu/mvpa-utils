@@ -52,8 +52,13 @@ def parseOptions():
             help="regularization parameter for classifiers")
     parser.add_option("-j", "--nproc", dest="NPROC", default=1, type='int',
             help="number of threads used")
+    parser.add_option("-e", "--write-cost-to-file", dest="OUTFILE", default="cost.txt",
+            help="file to write cost to")
+    parser.add_option("-a", "--save", action="store_true", dest="SAVE", default=False,
+            help="save results to file")
 
 
+    
     (options, args) = parser.parse_args()
     
     print('Run parameters:')
