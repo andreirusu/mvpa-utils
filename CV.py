@@ -32,7 +32,8 @@ def main(options):
         cvmeans = (1 - res.samples) * 100 # rescales and returns accuracies
         print('Fold accuracies:')
         print(cvmeans)
-        h5save(res_name + '.hdf5', res)
+        if options.SAVE :
+            h5save(res_name + '.hdf5', res)
         print(DELIM)
         mean_accuracy = np.mean(cvmeans)
         print('Mean accuracy: '+str(mean_accuracy))
@@ -42,6 +43,10 @@ def main(options):
     print(DELIM1)
     overall_mean_accuracy /= count
     print('Overall mean accuracy: '+str(overall_mean_accuracy))
+    if options.OUTFILE:
+        f = open(options.OUTFILE, "w")
+        f.write(str((100 - overall_mean_accuracy) / 100) + "\n")
+        f.close()
     print(DELIM1)
     print('Done\n')
 
