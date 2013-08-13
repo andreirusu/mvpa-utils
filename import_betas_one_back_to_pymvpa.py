@@ -10,8 +10,8 @@ from tools import *
 
 
 #EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
-#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
+#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 SPACE = 'roi'
@@ -20,7 +20,7 @@ SPACE = 'roi'
 MASK = 'brwROImask.nii'
 
 def get_chunks():
-    chunks = np.arange(1,6).repeat(2*6)
+    chunks = np.arange(1,11).repeat(6)
     chunks = np.concatenate((chunks, chunks), axis=0)
     return chunks
 
