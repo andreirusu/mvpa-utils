@@ -6,13 +6,14 @@ spm fmri
 
 
 %% %%%% MANUAL SET: all that needs to be set manually is in  section
-%EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects/';
+% EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects/';
+% EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects';
 EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional';
 
 
-%% DICOM IMPORT ALL SUBJECTS IN THE EXPERIMENT_DIR => PROC DIRECTORIES
-cd(EXPERIMENT_DIR)
-dicom_import_all_subjects
+% %% DICOM IMPORT ALL SUBJECTS IN THE EXPERIMENT_DIR => PROC DIRECTORIES
+% cd(EXPERIMENT_DIR)
+% dicom_import_all_subjects
 
 
 %% PRE-PROCESS ALL FUNCTIONAL VOLUMES IN PROC DIRs. => FINAL DIRs.
@@ -30,11 +31,14 @@ cd(EXPERIMENT_DIR)
 create_ROIs_all_subjects
 
 
-%% PRE-PROCESS REST SESSIONS INDEPENDENTLY
-cd(EXPERIMENT_DIR)
-rest_sessions_all_subjects;
+% %% PRE-PROCESS REST SESSIONS INDEPENDENTLY
+% cd(EXPERIMENT_DIR)
+% rest_sessions_all_subjects;
 
 
 %% GO BACK TO CODE DIR
 cd(CODE_PATH)
+
+R_FMRI_batch_Feb13v2_AAR_one_back
+
 

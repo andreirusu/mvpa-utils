@@ -24,9 +24,10 @@ celldisp(sessionPaths);
 nrun = size(sessionPaths,1); % enter the number of runs here
 jobfile = {'/Users/andreirusu/mvpa/mvpa-utils/create_subject_ROI_mask.m'};
 jobs = repmat(jobfile, 1, nrun);
-inputs = cell(1, nrun);
+inputs = cell(2, nrun);
 for crun = 1:nrun
     inputs{1, crun} = cellstr(strcat(sessionPaths{crun}, '/PROC')); % Named Directory Selector: Directory - cfg_files
+    inputs{2, crun} = cellstr(strcat(sessionPaths{crun}, '/../sess1/PROC'));
 end
 spm('defaults', 'FMRI');
 spm_jobman('serial', jobs, '', inputs{:});
