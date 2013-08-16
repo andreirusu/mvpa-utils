@@ -54,7 +54,7 @@ def main(options):
         print('Best accuracy: '+str(np.max(cvmeans)))
         print(DELIM)
         print('Mapping measure back into original voxel space!')
-        map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', res_name + '.nii')
+        #map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', res_name + '.nii')
     pl.show()
     overall_mean_best_measure /= count
     print(DELIM1)

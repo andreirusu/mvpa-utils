@@ -39,9 +39,11 @@ def parseOptions():
     parser.add_option("-r", "--radius", dest="SL_RADIUS", default=3, type='int',
             help="user radius SL_RADIUS in searchlight measure")
     parser.add_option("-c", "--classifier", dest="CLF", default='gnb',
-            help="the specified classifier will be used: gnb | csvm | smlr")
+            help="the specified classifier will be used: gnb | csvm | smlr | knn")
     parser.add_option("-v", "--cv", dest="CV", default='kfold',
             help="the specified CV will be used: kfold | half | custom")
+    parser.add_option("-k", "--rsa", dest="RSA", default='pearson',
+            help="the specified metric  will be used for RSA: pearson | spearman | confusion")
     parser.add_option("-f", "--fsel", dest="FSEL", default='NONE',
             help="uses the Feature SELection strategy: GNB_SL | ANOVA | NONE")
     parser.add_option("-n", "--nfeatures", dest="NFEATURES", default=500, type='int',
@@ -82,6 +84,13 @@ def partitioner(options):
 def configure_sl_gnb(ds, options):
     return sphere_gnbsearchlight(GNB(), partitioner(options), radius=options.SL_RADIUS, nproc=options.NPROC)    
 
+def configure_sl_knn(ds, options):
+    clf = kNN(k=options.LAMBDA)
+    cv = CrossValidation(clf, partitioner(options))
+    sl = sphere_searchlight(cv, radius=options.SL_RADIUS, nproc=options.NPROC)    
+    return sl
+
+
 def configure_sl_lcsvm(ds, options):
     clf = LinearCSVMC(C=options.LAMBDA)
     cv = CrossValidation(clf, partitioner(options))
@@ -105,6 +114,8 @@ def configure_sl(ds, options):
         return configure_sl_lcsvm(ds, options)
     elif options.CLF == 'smlr':
         return configure_sl_smlr(ds, options)
+    elif options.CLF == 'knn':
+        return configure_sl_knn(ds, options)
     else:
         raise NameError('Wrong SL!')
         return None 
@@ -149,7 +160,9 @@ def configure_clf(ds, options):
     elif options.CLF == 'nsvm': 
         clf = LinearNuSVMC(nu=options.LAMBDA)
     elif options.CLF == 'smlr':
-        clf = SMLR(lm = options.LAMBDA, seed = 0, ties = False, maxiter = 1000000) 
+        clf = SMLR(lm = options.LAMBDA, seed = 0) 
+    elif options.CLF == 'knn':
+        clf = kNN(k = options.LAMBDA, dfx=mvpa2.clfs.distance.squared_euclidean_distance) 
     else:
         raise NameError('Wrong CLF!')
         return None 
@@ -177,6 +190,12 @@ def configure_clf(ds, options):
     return fclf
     
 
+def configure_rsa(ds, options):
+    dsm = DSMatrix(ds.targets, 'confusion')
+    return DSMMeasure(dsm, options.RSA, 'confusion')
+
+
+
 
 def configure_cv(ds, options):
     #return CrossValidation(clf, CustomPartitioner(splitrule = [([1, 2, 3, 4, 5], [6, 7])], count=1, selection_strategy='first'))
@@ -190,6 +209,14 @@ def removeNaNColumns(ds) :
     ds = ds[:, ~np.isnan(np.sum(ds.samples, axis=0))]
     print('New dataset shape: ' + str(ds.shape))
     return ds
+
+def setNaNtoMean(ds) :
+    print('NaN Count: '+str(np.sum(np.isnan(ds.samples))))
+    #### REMOVE ALL COLUMNS WHICH CONTAIN NAN
+    ds.samples[np.isnan(ds.samples)] = np.nansum(ds.samples)/ds.shape[0]/ds.shape[1]
+    print('New dataset shape: ' + str(ds.shape))
+    return ds
+
 
 
 def removeConstantColums(ds):
@@ -249,9 +276,9 @@ def removeExtremeColumns(ds):
     print('Max value: ' + str(np.max(ds.samples)))
     print('Truncating extreme values...')
     #plotAndWait(ds.samples[:, 34344])
-    ds = ds[:, np.nanmax(ds.samples, axis=0) < 5000] 
+    ds = ds[:, np.nanmax(ds.samples, axis=0) < 500] 
     print('New dataset shape: ' + str(ds.shape))
-    ds = ds[:, np.nanmin(ds.samples, axis=0) > -5000] 
+    ds = ds[:, np.nanmin(ds.samples, axis=0) > -500] 
     print('New dataset shape: ' + str(ds.shape))
     #### check for extremes
     print('Min value: ' + str(np.min(ds.samples)))
@@ -294,7 +321,8 @@ def cleanup(ds):
 def preprocess(ds):
     print('Original dataset shape: ' + str(ds.shape))
     #return cleanup(zscoreChunks(truncateExtremeValues(removeNaNColumns(removeConstantColums(ds)))))
-    return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
+    #return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
+    return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(setNaNtoMean(ds)))))
  
 
 def preprocess_train_and_test(train_ds, test_ds):
