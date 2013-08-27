@@ -27,7 +27,7 @@ def import_session(subject_dir, sess):
     ds = fmri_dataset(samples = path, mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
     print(ds.shape)
     ds.targets = np.ones(ds.shape[0]) * -1
-    ds.chunks = np.ones(ds.shape[0]) * 10
+    ds.chunks = np.ones(ds.shape[0]) * 100
     ds = dataset_wizard(samples=ds.samples, targets=ds.targets, chunks=ds.chunks)
     print(ds.shape)
     print(ds.nfeatures)

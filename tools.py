@@ -192,7 +192,7 @@ def configure_clf(ds, options):
 
 def configure_rsa(ds, options):
     dsm = DSMatrix(ds.targets, 'confusion')
-    return DSMMeasure(dsm, options.RSA, 'confusion')
+    return DSMMeasure(dsm, options.RSA, 'spearman')
 
 
 
@@ -321,8 +321,8 @@ def cleanup(ds):
 def preprocess(ds):
     print('Original dataset shape: ' + str(ds.shape))
     #return cleanup(zscoreChunks(truncateExtremeValues(removeNaNColumns(removeConstantColums(ds)))))
-    #return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
-    return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(setNaNtoMean(ds)))))
+    return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
+    #return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(setNaNtoMean(ds)))))
  
 
 def preprocess_train_and_test(train_ds, test_ds):

@@ -4,7 +4,8 @@ from progress_bar import *
 from datetime import *
 from tools import *
 
-import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil, Image
+import matplotlib.pyplot as plt
+import scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil, matplotlib.image
 
 import numpy as inp
 
@@ -19,43 +20,44 @@ def main(options):
     count = 0
     overall_mean_accuracy = 0
 
+    #plt.figure(figsize=(30, 10), dpi=80)
     for dsname in contents :
         # get training data
         res_name = 'RSA.'+ options.RSA + '.' + options.CLF + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
-        ds = preprocess(train_ds)
+        #ds = preprocess(train_ds)
+        ds = cleanup(removeConstantColums(removeNaNColumns(train_ds)))
+        print(ds.targets)
+        #ds.targets = [ 'rc' if c == 1 else 'uc' for c in ds.targets ]
+        #print(ds.targets)
+        #ds = zscoreChunks(removeNaNColumns(train_ds))
         print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
         ### TEMP
-        dsm = DSMatrix(ds.samples, 'pearson')
-        img = Image.fromarray(dsm.get_full_matrix())
-        img.show()
-        sys.exit(0)
+        dsm = DSMatrix(ds.samples, options.RSA)
+        dsm1 = DSMatrix(ds.targets, 'confusion')
+        print(dsm.get_vector_form().shape)
+        print(dsm1.get_vector_form().shape)
+        test_mat = np.asarray([np.squeeze(dsm.get_vector_form()), np.squeeze(dsm1.get_vector_form())])
+        print(test_mat.shape) 
+        dsm2 = DSMatrix(test_mat, 'spearman')
+        print(dsm2)
+        count += 1
+        #plt.subplot(1, 3, count)
+        plt.figure()
+        plt.imshow(dsm.get_full_matrix())
+        plt.colorbar()
+        
+        #sys.exit(0)
         ### END TEMP
         measure = configure_rsa(ds, options)
-        res = measure(ds) # returns errors
+        res = measure(ds) 
         print(res)
-        print(res.samples)
-        cvmeans = (1 - res.samples) * 100 # rescales and returns accuracies
-        print('Fold accuracies:')
-        print(cvmeans)
+        continue
         if options.SAVE :
             h5save(res_name + '.hdf5', res)
-        print(DELIM)
-        mean_accuracy = np.mean(cvmeans)
-        print('Mean accuracy: '+str(mean_accuracy))
-        print(DELIM)
-        overall_mean_accuracy += mean_accuracy
-        count += 1
-    print(DELIM1)
-    overall_mean_accuracy /= count
-    print('Overall mean accuracy: '+str(overall_mean_accuracy))
-    if options.OUTFILE:
-        f = open(options.OUTFILE, "w")
-        f.write(str((100 - overall_mean_accuracy) / 100) + "\n")
-        f.close()
-    print(DELIM1)
+    plt.show()
     print('Done\n')
 
 

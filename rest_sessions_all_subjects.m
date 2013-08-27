@@ -50,7 +50,7 @@ for crun = 1:nrun
     disp(['Fist vol: ', num2str(first), '; Last vol: ', num2str(last), '; Files: ', num2str(last - first + 1)])
     rest_file_count = 0;
     str = char(filelist(1,1));
-    str = strrep(strrep(str, 'nii', 'txt'),'fMQ', 'rp_fMQ');
+    str = strrep(strrep(str, 'nii', 'txt'),'rfMQ', 'rp_fMQ');
     disp(str);
     [a,b,c,d,e,f] = textread(str, '%f%f%f%f%f%f');
     figure(9)

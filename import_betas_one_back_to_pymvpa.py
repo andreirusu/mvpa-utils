@@ -10,14 +10,14 @@ from tools import *
 
 
 #EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
-#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
+#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
-SPACE = 'roi'
-#SPACE = 'full'
-#MASK = 'rmask.nii'
-MASK = 'brwROImask.nii'
+#SPACE = 'roi'
+SPACE = 'full'
+MASK = 'rmask.nii'
+#MASK = 'brwROImask.nii'
 
 def get_chunks():
     chunks = np.arange(1,11).repeat(6)
