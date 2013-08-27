@@ -55,7 +55,7 @@ i=1;
 cond=0;
 
 %%%% THIS WILL CREATE 0.7s events
-regress_volumes = true;
+regress_volumes = false;
 
 chair_onsets = all_sub(curr_sub).the_stuff.chair_onsets';
 build_onsets = all_sub(curr_sub).the_stuff.build_onsets';
@@ -67,11 +67,19 @@ if all_sub_R_ENC(curr_sub).group == 1 ;
         for j=1:size(chair_onsets,1) 
             for l = 1:6
                 cond=cond+1;
-                SPM.Sess(i).U(cond).name        =   {['chair_' num2str(j) '_' num2str(l)]};
+                SPM.Sess(i).U(cond).name        =   {['chair.' num2str(j) '.' num2str(l)]};
                 SPM.Sess(i).U(cond).ons         =   chair_onsets(j) + (l-1)*SPM.xY.RT;
                 SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
                 SPM.Sess(i).U(cond).P(1).name   =   'none';
             end
+        end
+    else
+        for j=1:size(chair_onsets,1) 
+            cond=cond+1;
+            SPM.Sess(i).U(cond).name        =   {['chair.' num2str(j)]};
+            SPM.Sess(i).U(cond).ons         =   chair_onsets(j);
+            SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+            SPM.Sess(i).U(cond).P(1).name   =   'none';
         end
     end
     %%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
@@ -79,11 +87,19 @@ if all_sub_R_ENC(curr_sub).group == 1 ;
         for j=1:size(build_onsets,1) 
             for l = 1:6
                 cond=cond+1;
-                SPM.Sess(i).U(cond).name        =   {['build_' num2str(j) '_' num2str(l)]};
+                SPM.Sess(i).U(cond).name        =   {['build.' num2str(j) '.' num2str(l)]};
                 SPM.Sess(i).U(cond).ons         =   build_onsets(j) + (l-1)*SPM.xY.RT;
                 SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
                 SPM.Sess(i).U(cond).P(1).name   =   'none';
             end
+        end
+    else
+        for j=1:size(build_onsets,1) 
+            cond=cond+1;
+            SPM.Sess(i).U(cond).name        =   {['build.' num2str(j)]};
+            SPM.Sess(i).U(cond).ons         =   build_onsets(j);
+            SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+            SPM.Sess(i).U(cond).P(1).name   =   'none';
         end
     end
 elseif all_sub_R_ENC(curr_sub).group == 2 ;
@@ -92,11 +108,19 @@ elseif all_sub_R_ENC(curr_sub).group == 2 ;
         for j=1:size(build_onsets,1) 
             for l = 1:6
                 cond=cond+1;
-                SPM.Sess(i).U(cond).name        =   {['build_' num2str(j) '_' num2str(l)]};
+                SPM.Sess(i).U(cond).name        =   {['build.' num2str(j) '.' num2str(l)]};
                 SPM.Sess(i).U(cond).ons         =   build_onsets(j) + (l-1)*SPM.xY.RT;
                 SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
                 SPM.Sess(i).U(cond).P(1).name   =   'none';
             end
+        end
+     else
+        for j=1:size(build_onsets,1) 
+            cond=cond+1;
+            SPM.Sess(i).U(cond).name        =   {['build.' num2str(j)]};
+            SPM.Sess(i).U(cond).ons         =   build_onsets(j);
+            SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+            SPM.Sess(i).U(cond).P(1).name   =   'none';
         end
     end
     %%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
@@ -104,11 +128,19 @@ elseif all_sub_R_ENC(curr_sub).group == 2 ;
         for j=1:size(chair_onsets,1) 
             for l = 1:6
                 cond=cond+1;
-                SPM.Sess(i).U(cond).name        =   {['chair_' num2str(j) '_' num2str(l)]};
+                SPM.Sess(i).U(cond).name        =   {['chair.' num2str(j) '.' num2str(l)]};
                 SPM.Sess(i).U(cond).ons         =   chair_onsets(j) + (l-1)*SPM.xY.RT;
                 SPM.Sess(i).U(cond).dur         =   SPM.xY.RT; %block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
                 SPM.Sess(i).U(cond).P(1).name   =   'none';
             end
+        end
+     else
+        for j=1:size(chair_onsets,1) 
+            cond=cond+1;
+            SPM.Sess(i).U(cond).name        =   {['chair.' num2str(j)]};
+            SPM.Sess(i).U(cond).ons         =   chair_onsets(j);
+            SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+            SPM.Sess(i).U(cond).P(1).name   =   'none';
         end
     end
 else

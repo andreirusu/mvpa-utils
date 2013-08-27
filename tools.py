@@ -98,6 +98,12 @@ def configure_sl_lcsvm(ds, options):
     return sl
 
 
+def configure_sl_rsa(ds, options):
+    dsm = configure_rsa(ds, options)
+    sl = sphere_searchlight(dsm, radius=options.SL_RADIUS, nproc=options.NPROC)    
+    return sl
+
+
 def configure_sl_smlr(ds, options):
     # Sparse (Multinomial) Logistic Regression (lm = lambda, regularization parameter)
     clf = SMLR(lm = options.LAMBDA, seed = 0, ties = False, maxiter = 100) 
@@ -116,6 +122,8 @@ def configure_sl(ds, options):
         return configure_sl_smlr(ds, options)
     elif options.CLF == 'knn':
         return configure_sl_knn(ds, options)
+    elif options.CLF == 'rsa':
+        return configure_sl_rsa(ds, options)
     else:
         raise NameError('Wrong SL!')
         return None 
@@ -198,7 +206,6 @@ def configure_rsa(ds, options):
 
 
 def configure_cv(ds, options):
-    #return CrossValidation(clf, CustomPartitioner(splitrule = [([1, 2, 3, 4, 5], [6, 7])], count=1, selection_strategy='first'))
     return CrossValidation(configure_clf(ds, options), partitioner(options))
 
 
@@ -280,6 +287,21 @@ def removeExtremeColumns(ds):
     print('New dataset shape: ' + str(ds.shape))
     ds = ds[:, np.nanmin(ds.samples, axis=0) > -500] 
     print('New dataset shape: ' + str(ds.shape))
+    #### check for extremes
+    print('Min value: ' + str(np.min(ds.samples)))
+    print('Mean value: ' + str(np.mean(ds.samples)))
+    print('Max value: ' + str(np.max(ds.samples)))
+    return ds
+
+
+def zscoreAll(ds):
+    #### Z-SCORE
+    #### check for extremes
+    print('Min value: ' + str(np.min(ds.samples)))
+    print('Mean value: ' + str(np.mean(ds.samples)))
+    print('Max value: ' + str(np.max(ds.samples)))
+    print('Z-scoring...')
+    zscore(ds, chunks_attr='targets', params=(np.mean(ds.samples), np.std(ds.samples)))
     #### check for extremes
     print('Min value: ' + str(np.min(ds.samples)))
     print('Mean value: ' + str(np.mean(ds.samples)))

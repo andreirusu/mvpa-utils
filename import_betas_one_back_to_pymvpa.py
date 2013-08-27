@@ -15,18 +15,18 @@ EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 #SPACE = 'roi'
+#MASK = 'brwROImask.nii'
 SPACE = 'full'
 MASK = 'rmask.nii'
-#MASK = 'brwROImask.nii'
 
 def get_chunks():
-    chunks = np.arange(1,11).repeat(6)
+    chunks = np.arange(1,11)
     chunks = np.concatenate((chunks, chunks), axis=0)
     return chunks
 
 
 def get_labels():
-    labels = np.arange(1,3).repeat(6*10)
+    labels = np.arange(1,3).repeat(10)
     return labels
 
 
@@ -40,7 +40,7 @@ def main():
         print('Subject: ' + subject_dir)
         os.chdir(os.path.join(EXPERIMENT_DIR, subject_dir, CURRENT_TASK, 'analysis', '1'))
         volumes = glob.glob('beta_*img')
-        volumes = volumes[0:120] 
+        volumes = volumes[0:20] 
         print(volumes)
         print(len(volumes))
         ds = fmri_dataset(samples = volumes, targets = get_labels(), chunks = get_chunks(), mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))

@@ -25,7 +25,8 @@ def main(options):
         res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
-        ds = preprocess(train_ds)
+        print('Dataset shape: ' + str(train_ds.shape))
+        ds = cleanup(zscoreAll(removeConstantColums(removeNaNColumns(train_ds))))
         print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
         measure = configure_sl(ds, options)
@@ -34,16 +35,15 @@ def main(options):
         # apply statistics to results
         cvmeans = 0
         if options.STATS == 'mean':
-            cvmeans = 1 - np.mean(res.samples, axis=0)
+            cvmeans = np.mean(res.samples, axis=0)
         elif options.STATS == 'min':
-            cvmeans = 1 - np.max(res.samples, axis=0)
+            cvmeans = np.min(res.samples, axis=0)
         elif options.STATS == 'max':
-            cvmeans = 1 - np.min(res.samples, axis=0)
+            cvmeans = np.max(res.samples, axis=0)
         else:
             raise NameError('Wrong STATS!')
             return None 
-        cvmeans = cvmeans*100
-        print('Fold accuracies:')
+        print('Stats:')
         print(cvmeans)
         if options.PLOT :
             pl.figure()
@@ -51,7 +51,9 @@ def main(options):
         print(DELIM)
         count += 1
         overall_mean_best_measure += np.max(cvmeans)
-        print('Best accuracy: '+str(np.max(cvmeans)))
+        print('Min: '+str(np.min(cvmeans)))
+        print('Mean: '+str(np.mean(cvmeans)))
+        print('Max: '+str(np.max(cvmeans)))
         print(DELIM)
         print('Mapping measure back into original voxel space!')
         #map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', res_name + '.nii')

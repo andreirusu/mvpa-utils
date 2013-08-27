@@ -26,12 +26,10 @@ def main(options):
         res_name = 'RSA.'+ options.RSA + '.' + options.CLF + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
-        #ds = preprocess(train_ds)
-        ds = cleanup(removeConstantColums(removeNaNColumns(train_ds)))
+        ds = cleanup(zscoreAll(removeConstantColums(removeNaNColumns(train_ds))))
         print(ds.targets)
         #ds.targets = [ 'rc' if c == 1 else 'uc' for c in ds.targets ]
         #print(ds.targets)
-        #ds = zscoreChunks(removeNaNColumns(train_ds))
         print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
         ### TEMP
