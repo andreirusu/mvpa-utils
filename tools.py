@@ -100,6 +100,7 @@ def configure_sl_lcsvm(ds, options):
 
 def configure_sl_rsa(ds, options):
     dsm = configure_rsa(ds, options)
+    csv = CrossValidation(dsm, partitioner(options))
     sl = sphere_searchlight(dsm, radius=options.SL_RADIUS, nproc=options.NPROC)    
     return sl
 
@@ -239,6 +240,7 @@ def removeLinearTrends(ds):
     print('PolyDetrend...')
     poly_detrend(ds, polyord=1, chunks_attr='chunks')
     return ds
+
 
 
 def truncateExtremeValues(ds):

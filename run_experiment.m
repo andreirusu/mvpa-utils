@@ -7,8 +7,8 @@ spm fmri
 
 %% %%%% MANUAL SET: all that needs to be set manually is in  section
 % EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects/';
-% EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects';
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional';
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects';
+% EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional';
 
 
 % %% DICOM IMPORT ALL SUBJECTS IN THE EXPERIMENT_DIR => PROC DIRECTORIES
@@ -26,14 +26,14 @@ EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional';
 % create_brain_masks_all_subjects
 
 
-% %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
-% cd(EXPERIMENT_DIR)
-% create_ROIs_all_subjects
-
-
-%% PRE-PROCESS REST SESSIONS INDEPENDENTLY
+%% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
 cd(EXPERIMENT_DIR)
-rest_sessions_all_subjects;
+create_ROIs_all_subjects
+
+
+% %% PRE-PROCESS REST SESSIONS INDEPENDENTLY
+% cd(EXPERIMENT_DIR)
+% rest_sessions_all_subjects;
 
 
 %% GO BACK TO CODE DIR

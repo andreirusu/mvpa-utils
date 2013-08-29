@@ -81,7 +81,7 @@ for j=1:size(r_cue_onsets,1)
     cond=cond+1;
     SPM.Sess(i).U(cond).name        =   {['r_cue_' num2str(j)]};
     SPM.Sess(i).U(cond).ons         =   r_cue_onsets(j);
-    SPM.Sess(i).U(cond).dur         =   2; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+    SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
     SPM.Sess(i).U(cond).P(1).name   =   'none'; %'time';
 
 end
@@ -113,7 +113,7 @@ for j=1:size(ur_cue_onsets,1)
     cond=cond+1;
     SPM.Sess(i).U(cond).name        =   {['ur_cue_' num2str(j)]};
     SPM.Sess(i).U(cond).ons         =   ur_cue_onsets(j);
-    SPM.Sess(i).U(cond).dur         =   2; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+    SPM.Sess(i).U(cond).dur         =   0; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
     SPM.Sess(i).U(cond).P(1).name   =   'none'; %'time';
 
 end

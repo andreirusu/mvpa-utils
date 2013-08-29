@@ -26,32 +26,34 @@ def main(options):
         res_name = 'RSA.'+ options.RSA + '.' + options.CLF + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
-        ds = cleanup(zscoreAll(removeConstantColums(removeNaNColumns(train_ds))))
+        ds = train_ds
+        ds = cleanup(zscoreAll(removeConstantColums(removeNaNColumns(ds))))
         print(ds.targets)
-        #ds.targets = [ 'rc' if c == 1 else 'uc' for c in ds.targets ]
-        #print(ds.targets)
+        np.random.shuffle(ds.targets)
+        print(ds.targets)
         print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
-        ### TEMP
-        dsm = DSMatrix(ds.samples, options.RSA)
-        dsm1 = DSMatrix(ds.targets, 'confusion')
-        print(dsm.get_vector_form().shape)
-        print(dsm1.get_vector_form().shape)
-        test_mat = np.asarray([np.squeeze(dsm.get_vector_form()), np.squeeze(dsm1.get_vector_form())])
-        print(test_mat.shape) 
-        dsm2 = DSMatrix(test_mat, 'spearman')
-        print(dsm2)
-        count += 1
-        #plt.subplot(1, 3, count)
-        plt.figure()
-        plt.imshow(dsm.get_full_matrix())
-        plt.colorbar()
-        
-        #sys.exit(0)
-        ### END TEMP
+        if options.PLOT : 
+            ### TEMP
+            dsm = DSMatrix(ds.samples, options.RSA)
+            dsm1 = DSMatrix(ds.targets, 'confusion')
+            print(dsm.get_vector_form().shape)
+            print(dsm1.get_vector_form().shape)
+            test_mat = np.asarray([np.squeeze(dsm.get_vector_form()), np.squeeze(dsm1.get_vector_form())])
+            print(test_mat.shape) 
+            dsm2 = DSMatrix(test_mat, 'spearman')
+            print(dsm2)
+            count += 1
+            #plt.subplot(1, 3, count)
+            plt.figure()
+            plt.imshow(dsm.get_full_matrix())
+            plt.colorbar()
+            ### END TEMP
         measure = configure_rsa(ds, options)
         res = measure(ds) 
-        print(res)
+        print(DELIM1)
+        print('Measure: '+ str(res))
+        print(DELIM1)
         continue
         if options.SAVE :
             h5save(res_name + '.hdf5', res)
