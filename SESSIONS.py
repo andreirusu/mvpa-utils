@@ -5,6 +5,7 @@ from datetime import *
 from tools import *
 
 import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil, pprint
+import matplotlib.pyplot as plt
 
 import numpy as inp
 
@@ -17,7 +18,7 @@ def process_session(subject_dir, sess, options, train_ds, stats):
     test_ds = h5load(test_path)
     ### PRE-PROCESSING
     print('Processing: ' + subject_dir)
-    #train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds)
+    train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds)
     #clf = configure_clf(train_ds, options)
     #clf.train(train_ds)
     #preds = clf(test_ds)
@@ -35,7 +36,15 @@ def process_session(subject_dir, sess, options, train_ds, stats):
     #     print('Accuracy: ' + str(acc))
     #     stats['accuracy'] = acc
     #print(DELIM1)
-
+    stats['dists'] = {1:[], 2:[]}
+    dists_1 = mvpa2.clfs.distance.squared_euclidean_distance(data1=train_ds.samples[train_ds.targets == 1], data2=test_ds.samples)
+    stats['dists'][1] = np.sum(dists_1, axis=0)
+    dists_2 = mvpa2.clfs.distance.squared_euclidean_distance(data1=train_ds.samples[train_ds.targets == 2], data2=test_ds.samples)
+    stats['dists'][2] = np.mean(dists_2, axis=0)
+    plt.hist( stats['dists'][1]) 
+    plt.hist( stats['dists'][2])
+    plt.show()
+    
 
 def process_subject(subject_dir, options, stats):
     print('Subject: ' + subject_dir)

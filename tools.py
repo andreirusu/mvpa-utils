@@ -431,9 +431,9 @@ def preprocess_train_and_test(train_ds, test_ds):
     print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
     print('Max train value: ' + str(np.max(train_ds.samples)) + '\nMax test value: ' + str(np.max(test_ds.samples)))
     #### Z-SCORE
-    print('Z-scoring...')
-    zscore(train_ds, chunks_attr='chunks')
-    zscore(test_ds, chunks_attr='chunks')
+    #print('Z-scoring...')
+    #zscore(train_ds, chunks_attr='chunks')
+    #zscore(test_ds, chunks_attr='chunks')
     #### check for extremes
     print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
     print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
