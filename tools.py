@@ -13,13 +13,53 @@ import numpy as inp
 
 
 
-EPSILON = 1e-5
+EPSILON = 1e-3
 DELIM   =   '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 DELIM1  =   '#######################################################################################'
 
 ## MAKE EXPERIMENTS FULLY REPEATABLE
 random.seed(0)
 
+
+def preprocess_rsa(dsname, ds) :
+        print('Processing: ' + dsname)
+        print('Dataset shape: ' + str(ds.shape))
+        ds=cleanup(removeConstantColums(removeNaNColumns(ds)))
+        ds.sa['serial_chunks'] = list(ds.chunks)
+        ds.sa.serial_chunks[ ds.sa.serial_chunks <= 5 ] = 1
+        ds.sa.serial_chunks[ ds.sa.serial_chunks > 5 ] = 2
+        print('SerialChunks:\n' + str(ds.sa.serial_chunks))
+        zscore(ds, chunks_attr='serial_chunks')
+        print('Chunks:\n' + str(ds.chunks))
+        print('SerialChunks:\n' + str(ds.sa.serial_chunks))
+        #ds.chunks[ ds.chunks % 2 < 1 ] = 2
+        #ds.chunks[ ds.chunks % 2 > 0 ] = 1
+        print('Chunks:\n' + str(ds.chunks))
+        print('SerialChunks:\n' + str(ds.sa.serial_chunks))
+        #ds1, ds2 = splitDataset(ds, 0.5)
+        #print ds1
+        #print ds2
+        # # z-scoring both halfs with the parameters of the first half
+        # params_ds1 = (np.mean(ds1.samples), np.std(ds1.samples))
+        #printDatasetStats(ds1)
+        # print('Z-scoring...')
+        # zscore(ds1, params = params_ds1)
+        # printDatasetStats(ds1)
+        #print(DELIM)
+        #printDatasetStats(ds2)
+        # print('Z-scoring...')
+        # zscore(ds2, params = params_ds1)
+        # printDatasetStats(ds2)
+        print(DELIM)
+        #ds = ds2
+        printDatasetStats(ds)
+        print('Targets:\n' + str(ds.targets))
+        #np.random.shuffle(ds.targets)
+        print('Targets:\n' + str(ds.targets))
+        print('Chunks:\n' + str(ds.chunks))
+        print('New dataset shape: ' + str(ds.shape))
+        print(DELIM)
+        return ds
 
 
 def parseOptions():
@@ -100,7 +140,6 @@ def configure_sl_lcsvm(ds, options):
 
 def configure_sl_rsa(ds, options):
     dsm = configure_rsa(ds, options)
-    csv = CrossValidation(dsm, partitioner(options))
     sl = sphere_searchlight(dsm, radius=options.SL_RADIUS, nproc=options.NPROC)    
     return sl
 
@@ -201,6 +240,7 @@ def configure_clf(ds, options):
 
 def configure_rsa(ds, options):
     dsm = DSMatrix(ds.targets, 'confusion')
+    #return CrossValidation(DSMMeasure(dsm, options.RSA, 'spearman'), partitioner(options))
     return DSMMeasure(dsm, options.RSA, 'spearman')
 
 
@@ -303,7 +343,7 @@ def zscoreAll(ds):
     print('Mean value: ' + str(np.mean(ds.samples)))
     print('Max value: ' + str(np.max(ds.samples)))
     print('Z-scoring...')
-    zscore(ds, chunks_attr='targets', params=(np.mean(ds.samples), np.std(ds.samples)))
+    zscore(ds, params=(np.mean(ds.samples), np.std(ds.samples)))
     #### check for extremes
     print('Min value: ' + str(np.min(ds.samples)))
     print('Mean value: ' + str(np.mean(ds.samples)))
@@ -311,19 +351,20 @@ def zscoreAll(ds):
     return ds
 
 
-def zscoreChunks(ds):
-    #### Z-SCORE
+def printDatasetStats(ds):
     #### check for extremes
     print('Min value: ' + str(np.min(ds.samples)))
     print('Mean value: ' + str(np.mean(ds.samples)))
     print('Max value: ' + str(np.max(ds.samples)))
+
+
+def zscoreChunks(ds):
+    #### Z-SCORE
+    printDatasetStats(ds)
     print('Z-scoring...')
     #zscore(ds, param_est=('targets', [0]))
     zscore(ds, chunks_attr='chunks')
-    #### check for extremes
-    print('Min value: ' + str(np.min(ds.samples)))
-    print('Mean value: ' + str(np.mean(ds.samples)))
-    print('Max value: ' + str(np.max(ds.samples)))
+    printDatasetStats(ds)
     return ds
 
 
@@ -348,6 +389,16 @@ def preprocess(ds):
     return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
     #return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(setNaNtoMean(ds)))))
  
+
+
+def splitDataset(ds, frac):
+    splitPoint = np.sort(np.unique(np.array(ds.chunks)))
+    print splitPoint
+    splitPoint = splitPoint[np.floor(np.size(splitPoint) * frac)]
+    print splitPoint
+    return ds[ds.chunks < splitPoint], ds[ds.chunks >= splitPoint]
+
+
 
 def preprocess_train_and_test(train_ds, test_ds):
     print('Original dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))

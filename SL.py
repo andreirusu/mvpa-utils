@@ -6,7 +6,7 @@ from tools import *
 
 import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil
 
-import numpy as inp
+import numpy as np
 
 def main(options):
     print(DELIM1)
@@ -23,15 +23,10 @@ def main(options):
     for dsname in contents :
         # get training data
         res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
-        train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
-        print('Processing: ' + dsname)
-        print('Dataset shape: ' + str(train_ds.shape))
-        ds = cleanup(removeConstantColums(removeNaNColumns(train_ds)))
-        print('Targets: ' + str(ds.targets))
-        #np.random.shuffle(ds.targets)
-        print('Targets: ' + str(ds.targets))
-        print('New dataset shape: ' + str(ds.shape))
-        print(DELIM)
+        ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
+        
+        ds = preprocess_rsa(dsname, ds)
+
         measure = configure_sl(ds, options)
         res = measure(ds)
         h5save(res_name + '.hdf5', res)
