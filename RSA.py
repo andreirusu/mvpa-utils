@@ -30,12 +30,22 @@ def loadSLResults(dsname, options):
     return cvmeans
 
 
-def fsel(stats,ratio) :
+def fsel(stats, ds, options) :
     print(DELIM)
-    slicer =  stats > np.max(stats)*ratio
-    print(np.sum(slicer))
+    center = np.argmin(stats)
+    print center
     print(DELIM)
-
+    
+    slicer = stats > 10^6
+    slicer[center] = True
+    space="voxel_indices"
+    kwa = {space: Sphere(options.SL_RADIUS)}
+    qe=IndexQueryEngine(**kwa)
+    qe.train(ds)
+    best_sphere_ids = qe.query_byid(center)
+    print np.size(best_sphere_ids)
+    for id in best_sphere_ids :
+        slicer[id] = True
     return slicer 
 
 def main(options):
@@ -61,7 +71,7 @@ def main(options):
 
         ds = train_ds
         print('New dataset shape: ' + str(ds.shape))
-        ds.samples = ds.samples[:, fsel(cvmeans, 0.8)]
+        ds.samples = ds.samples[:, fsel(cvmeans, ds, options)]
         print('New dataset shape: ' + str(ds.shape))
         ds = preprocess_rsa(dsname, ds)
         print(ds.targets)

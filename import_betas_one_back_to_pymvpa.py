@@ -15,7 +15,7 @@ EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 SPACE = 'roi'
-MASK = 'brwROImask.nii'
+MASK = 'rROImask.nii'
 #SPACE = 'full'
 #MASK = 'rmask.nii'
 

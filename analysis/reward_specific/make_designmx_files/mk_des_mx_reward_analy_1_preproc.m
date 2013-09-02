@@ -74,6 +74,7 @@ targ_onsets=all_sub(curr_sub).the_stuff.all_sess.onsets.targ; %TARGET
 i=1;
 
 cond=0;
+block_dur = 2;
 
 r_cue_onsets = r_cue_onsets';
 
@@ -113,7 +114,7 @@ for j=1:size(ur_cue_onsets,1)
     cond=cond+1;
     SPM.Sess(i).U(cond).name        =   {['ur_cue_' num2str(j)]};
     SPM.Sess(i).U(cond).ons         =   ur_cue_onsets(j);
-    SPM.Sess(i).U(cond).dur         =   0; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
+    SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
     SPM.Sess(i).U(cond).P(1).name   =   'none'; %'time';
 
 end
