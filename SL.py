@@ -24,7 +24,9 @@ def main(options):
         # get training data
         res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
-        
+        print(DELIM1) 
+        print(ds.chunks)
+        print(DELIM1) 
         ds = preprocess_rsa(dsname, ds)
 
         measure = configure_sl(ds, options)
@@ -48,7 +50,7 @@ def main(options):
             pl.hist(cvmeans, 100)
         print(DELIM)
         count += 1
-        overall_mean_best_measure += np.max(cvmeans)
+        overall_mean_best_measure += np.mean(cvmeans)
         print('Min: '+str(np.min(cvmeans)))
         print('Mean: '+str(np.mean(cvmeans)))
         print('Max: '+str(np.max(cvmeans)))
@@ -58,7 +60,7 @@ def main(options):
     pl.show()
     overall_mean_best_measure /= count
     print(DELIM1)
-    print('Overall mean best measure: '+str(overall_mean_best_measure))
+    print('Overall mean  measure: '+str(overall_mean_best_measure))
     print(DELIM1)
     print('Done\n')
 

@@ -41,8 +41,8 @@ def process_session(subject_dir, sess, options, train_ds, stats):
     stats['dists'][1] = np.sum(dists_1, axis=0)
     dists_2 = mvpa2.clfs.distance.squared_euclidean_distance(data1=train_ds.samples[train_ds.targets == 2], data2=test_ds.samples)
     stats['dists'][2] = np.mean(dists_2, axis=0)
-    plt.hist( stats['dists'][1]) 
-    plt.hist( stats['dists'][2])
+    plt.hist(stats['dists'][1]) 
+    plt.hist(stats['dists'][2])
     plt.show()
     
 

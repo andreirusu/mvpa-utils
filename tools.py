@@ -24,18 +24,18 @@ random.seed(0)
 def preprocess_rsa(dsname, ds) :
         print('Processing: ' + dsname)
         print('Dataset shape: ' + str(ds.shape))
-        ds=cleanup(removeConstantColums(removeNaNColumns(ds)))
-        ds.sa['serial_chunks'] = list(ds.chunks)
-        ds.sa.serial_chunks[ ds.sa.serial_chunks <= 5 ] = 1
-        ds.sa.serial_chunks[ ds.sa.serial_chunks > 5 ] = 2
-        print('SerialChunks:\n' + str(ds.sa.serial_chunks))
-        zscore(ds, chunks_attr='serial_chunks')
-        print('Chunks:\n' + str(ds.chunks))
-        print('SerialChunks:\n' + str(ds.sa.serial_chunks))
+        ds=cleanup(zscoreChunks(removeConstantColums(removeNaNColumns(ds))))
+        #ds.sa['serial_chunks'] = list(ds.chunks)
+        #ds.sa.serial_chunks[ ds.sa.serial_chunks <= 5 ] = 1
+        #ds.sa.serial_chunks[ ds.sa.serial_chunks > 5 ] = 2
+        #print('SerialChunks:\n' + str(ds.sa.serial_chunks))
+        #zscore(ds, chunks_attr='serial_chunks')
+        #print('Chunks:\n' + str(ds.chunks))
+        #print('SerialChunks:\n' + str(ds.sa.serial_chunks))
         #ds.chunks[ ds.chunks % 2 < 1 ] = 2
         #ds.chunks[ ds.chunks % 2 > 0 ] = 1
-        print('Chunks:\n' + str(ds.chunks))
-        print('SerialChunks:\n' + str(ds.sa.serial_chunks))
+        #print('Chunks:\n' + str(ds.chunks))
+        #print('SerialChunks:\n' + str(ds.sa.serial_chunks))
         #ds1, ds2 = splitDataset(ds, 0.5)
         #print ds1
         #print ds2
@@ -51,7 +51,9 @@ def preprocess_rsa(dsname, ds) :
         # zscore(ds2, params = params_ds1)
         # printDatasetStats(ds2)
         print(DELIM)
-        #ds = ds2
+        #ds = ds[ds.chunks == 1]
+        #hlf = np.array(range(1, 9, 1)).repeat(4)
+        #ds.chunks = np.concatenate((hlf, hlf), axis=0)
         printDatasetStats(ds)
         print('Targets:\n' + str(ds.targets))
         #np.random.shuffle(ds.targets)
@@ -343,7 +345,7 @@ def zscoreAll(ds):
     print('Mean value: ' + str(np.mean(ds.samples)))
     print('Max value: ' + str(np.max(ds.samples)))
     print('Z-scoring...')
-    zscore(ds, params=(np.mean(ds.samples), np.std(ds.samples)))
+    zscore(ds, auto_train=False,  params=(np.mean(ds.samples), np.std(ds.samples)))
     #### check for extremes
     print('Min value: ' + str(np.min(ds.samples)))
     print('Mean value: ' + str(np.mean(ds.samples)))
