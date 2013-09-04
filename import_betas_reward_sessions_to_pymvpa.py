@@ -14,10 +14,10 @@ EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
 #EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'
 CURRENT_TASK = 'reward' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
-SPACE = 'roi'
-MASK = 'brwROImask.nii'
-#SPACE = 'full'
-#MASK = 'rmask.nii'
+#SPACE = 'roi'
+#MASK = 'brwROImask.nii'
+SPACE = 'full'
+MASK = 'rmask.nii'
 
 
 def get_chunks():

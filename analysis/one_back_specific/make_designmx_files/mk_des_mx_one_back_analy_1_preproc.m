@@ -60,6 +60,8 @@ regress_volumes = false;
 chair_onsets = all_sub(curr_sub).the_stuff.chair_onsets';
 build_onsets = all_sub(curr_sub).the_stuff.build_onsets';
 
+disp(chair_onsets)
+disp(build_onsets)
 
 if all_sub_R_ENC(curr_sub).group == 1 ;
     %%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK
@@ -74,6 +76,7 @@ if all_sub_R_ENC(curr_sub).group == 1 ;
             end
         end
     else
+        disp(cond)
         for j=1:size(chair_onsets,1) 
             cond=cond+1;
             SPM.Sess(i).U(cond).name        =   {['chair.' num2str(j)]};
@@ -94,6 +97,7 @@ if all_sub_R_ENC(curr_sub).group == 1 ;
             end
         end
     else
+        disp(cond)
         for j=1:size(build_onsets,1) 
             cond=cond+1;
             SPM.Sess(i).U(cond).name        =   {['build.' num2str(j)]};
@@ -114,7 +118,8 @@ elseif all_sub_R_ENC(curr_sub).group == 2 ;
                 SPM.Sess(i).U(cond).P(1).name   =   'none';
             end
         end
-     else
+    else
+        disp(cond)
         for j=1:size(build_onsets,1) 
             cond=cond+1;
             SPM.Sess(i).U(cond).name        =   {['build.' num2str(j)]};
@@ -134,7 +139,8 @@ elseif all_sub_R_ENC(curr_sub).group == 2 ;
                 SPM.Sess(i).U(cond).P(1).name   =   'none';
             end
         end
-     else
+    else
+        disp(cond)
         for j=1:size(chair_onsets,1) 
             cond=cond+1;
             SPM.Sess(i).U(cond).name        =   {['chair.' num2str(j)]};
@@ -148,15 +154,17 @@ else
     return;
 end
 
+disp(cond)
 
-
-
+cond=cond+1;
 SPM.Sess(i).U(cond).name      = {'scrchair'};
 SPM.Sess(i).U(cond).ons       = all_sub(curr_sub).the_stuff.scrchair_onsets'; %
 SPM.Sess(i).U(cond).dur       = repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
 SPM.Sess(i).U(cond).P(1).name = 'time';
 SPM.Sess(i).U(cond).P(1).P    = all_sub(curr_sub).the_stuff.scrchair_onsets'; %
 SPM.Sess(i).U(cond).P(1).h    = 1; %LINEAR
+
+
 %****************
 %ONLY SUBJECTS 1-4 HAVE SCRBUILDING CONDITION
 if curr_sub<=4

@@ -18,7 +18,9 @@ def process_session(subject_dir, sess, options, train_ds, stats):
     test_ds = h5load(test_path)
     ### PRE-PROCESSING
     print('Processing: ' + subject_dir)
-    train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds)
+    #train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds)
+    train_ds = preprocess_rsa(subject_dir, train_ds)
+    test_ds = preprocess_rsa(subject_dir, test_ds)
     #clf = configure_clf(train_ds, options)
     #clf.train(train_ds)
     #preds = clf(test_ds)
@@ -36,14 +38,11 @@ def process_session(subject_dir, sess, options, train_ds, stats):
     #     print('Accuracy: ' + str(acc))
     #     stats['accuracy'] = acc
     #print(DELIM1)
-    stats['dists'] = {1:[], 2:[]}
-    dists_1 = mvpa2.clfs.distance.squared_euclidean_distance(data1=train_ds.samples[train_ds.targets == 1], data2=test_ds.samples)
-    stats['dists'][1] = np.sum(dists_1, axis=0)
-    dists_2 = mvpa2.clfs.distance.squared_euclidean_distance(data1=train_ds.samples[train_ds.targets == 2], data2=test_ds.samples)
-    stats['dists'][2] = np.mean(dists_2, axis=0)
-    plt.hist(stats['dists'][1]) 
-    plt.hist(stats['dists'][2])
-    plt.show()
+    k = 10000
+    plt.plot(np.std(train_ds.samples, axis=1))
+    plt.plot(np.std(test_ds.samples, axis=1))
+    #plt.plot(train_ds.samples[:, k])
+    #plt.plot(test_ds.samples[:, k])
     
 
 def process_subject(subject_dir, options, stats):
@@ -54,12 +53,14 @@ def process_subject(subject_dir, options, stats):
     sessions = glob.glob('sess*')    
     print('Found: ' + str(sessions))
     os.chdir(os.path.join('..', '..', options.EXPORT_DIR))
+    print os.getcwd()
     # get training data
     train_path = options.TRAIN_PREFIX + '.' + subject_dir + '.' + options.SPACE + '.hdf5'
     print('Loading: ' + train_path)
     train_ds = h5load(train_path)
     stats['sessions'] = []
     # process test data
+    plt.figure()
     for sess in sessions :
         stats['sessions'].append(sess)
         stats[sess] = {}
@@ -84,6 +85,7 @@ def main(options):
     h5save(res_name + '.hdf5', stats) 
     # print results
     pprint.pprint(stats, width=80)
+    plt.show()
        
 if __name__ == "__main__" :
     main(parseOptions())

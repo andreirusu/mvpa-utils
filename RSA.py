@@ -44,8 +44,8 @@ def fsel(stats, ds, options) :
     qe.train(ds)
     best_sphere_ids = qe.query_byid(center)
     print np.size(best_sphere_ids)
-    for id in best_sphere_ids :
-        slicer[id] = True
+    for i in best_sphere_ids :
+        slicer[i] = True
     return slicer 
 
 def main(options):
@@ -65,15 +65,16 @@ def main(options):
         # get training data
         res_name = 'RSA.'+ options.RSA + '.' + options.CLF + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
+        test_ds = h5load(options.TEST_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
         
         cvmeans = loadSLResults(dsname, options)
 
-        ds = train_ds
-        print('New dataset shape: ' + str(ds.shape))
-        ds.samples = ds.samples[:, fsel(cvmeans, ds, options)]
+        ds = test_ds
         print('New dataset shape: ' + str(ds.shape))
         ds = preprocess_rsa(dsname, ds)
+        print('New dataset shape: ' + str(ds.shape))
+        ds.samples = ds.samples[:, fsel(cvmeans, ds, options)]
         print(ds.targets)
         #np.random.shuffle(ds.targets)
         print(ds.targets)
@@ -90,9 +91,12 @@ def main(options):
             dsm2 = DSMatrix(test_mat, 'spearman')
             print(dsm2)
             count += 1
-            #plt.subplot(1, 3, count)
             plt.figure()
+            plt.subplot(1, 2, 1)
             plt.imshow(dsm.get_full_matrix())
+            plt.colorbar()
+            plt.subplot(1, 2, 2)
+            plt.imshow(dsm1.get_full_matrix())
             plt.colorbar()
             ### END TEMP
         measure = configure_rsa(ds, options)

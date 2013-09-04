@@ -14,13 +14,13 @@ EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
 #EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
-SPACE = 'roi'
-MASK = 'rROImask.nii'
-#SPACE = 'full'
-#MASK = 'rmask.nii'
+#SPACE = 'roi'
+#MASK = 'brwROImask.nii'
+SPACE = 'full'
+MASK = 'rmask.nii'
 
 def get_chunks():
-    chunks = np.arange(1,11)
+    chunks = np.arange(1,6).repeat(2) 
     chunks = np.concatenate((chunks, chunks), axis=0)
     return chunks
 
