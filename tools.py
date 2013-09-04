@@ -23,7 +23,7 @@ random.seed(0)
 
 def sphereDataset(ds):
     ds.samples = (ds.samples.T - np.mean(ds.samples, axis = 1)).T
-    ds.samples = (ds.samples.T / np.std(ds.samples, axis = 1)).T 
+    ds.samples = (ds.samples.T / np.sqrt(np.sum(np.power(ds.samples, 2), axis = 1))).T 
     return ds
 
 def preprocess_rsa(dsname, ds) :
