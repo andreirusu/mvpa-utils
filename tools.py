@@ -30,7 +30,7 @@ def preprocess_rsa(dsname, ds) :
         print('Processing: ' + dsname)
         print('Dataset shape: ' + str(ds.shape))
         #ds=cleanup(zscoreChunks(removeConstantColums(removeNaNColumns(ds))))
-        ds=cleanup(sphereDataset(removeConstantColums(removeNaNColumns(ds))))
+        ds=cleanup(zscoreChunks(sphereDataset(removeConstantColums(removeNaNColumns(ds)))))
         #ds.sa['serial_chunks'] = list(ds.chunks)
         #ds.sa.serial_chunks[ ds.sa.serial_chunks <= 5 ] = 1
         #ds.sa.serial_chunks[ ds.sa.serial_chunks > 5 ] = 2
