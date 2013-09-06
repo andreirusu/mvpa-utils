@@ -55,7 +55,7 @@ unrew_ind=find(all_sub(curr_sub).the_stuff.all_sess.reward_status==0); %index re
 rew_mem_rating=all_sub(curr_sub).the_stuff.all_sess.rew_mem_rating;
 unrew_mem_rating=all_sub(curr_sub).the_stuff.all_sess.unrew_mem_rating;
 
- pos_fb_ind=find(all_sub(curr_sub).the_stuff.all_sess.feedback_type==1);
+pos_fb_ind=find(all_sub(curr_sub).the_stuff.all_sess.feedback_type==1);
 neg_fb_ind=find(all_sub(curr_sub).the_stuff.all_sess.feedback_type==0);
 
 
@@ -68,22 +68,31 @@ r_neg_fb_onsets=all_sub(curr_sub).the_stuff.all_sess.onsets.fb(neg_fb_ind); %neg
 
 ur_fb_onsets=all_sub(curr_sub).the_stuff.all_sess.onsets.fb(unrew_ind); %neutral
 
+
+fid = fopen('trial_onsets.txt', 'w');
+fprintf(fid, '%f ', r_cue_onsets);
+fprintf(fid, '%f ', ur_cue_onsets);
+fclose(fid);
+
+
+
 targ_onsets=all_sub(curr_sub).the_stuff.all_sess.onsets.targ; %TARGET
 % %%%%%%%%%%%%%
 
 i=1;
 
 cond=0;
-block_dur = 2;
 
 r_cue_onsets = r_cue_onsets';
 
 for j=1:size(r_cue_onsets,1) 
     cond=cond+1;
-    SPM.Sess(i).U(cond).name        =   {['r_cue_' num2str(j)]};
+    SPM.Sess(i).U(cond).name        =   {['r_cue.' num2str(j)]};
     SPM.Sess(i).U(cond).ons         =   r_cue_onsets(j);
-    SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-    SPM.Sess(i).U(cond).P(1).name   =   'none'; %'time';
+    SPM.Sess(i).U(cond).dur         =   0; %repmat(0, (length(SPM.Sess(i).U(cond).ons)),1);
+    SPM.Sess(i).U(cond).P(1).name   =   ['Rmem_rating.' num2str(j)];
+    SPM.Sess(i).U(cond).P(1).P      =   rew_mem_rating(j); %
+    SPM.Sess(i).U(cond).P(1).h      =   1; %LINEAR
 
 end
 
@@ -112,10 +121,12 @@ ur_cue_onsets = ur_cue_onsets';
 
 for j=1:size(ur_cue_onsets,1) 
     cond=cond+1;
-    SPM.Sess(i).U(cond).name        =   {['ur_cue_' num2str(j)]};
+    SPM.Sess(i).U(cond).name        =   {['ur_cue.' num2str(j)]};
     SPM.Sess(i).U(cond).ons         =   ur_cue_onsets(j);
-    SPM.Sess(i).U(cond).dur         =   block_dur; %repmat(block_dur, (length(SPM.Sess(i).U(cond).ons)),1);
-    SPM.Sess(i).U(cond).P(1).name   =   'none'; %'time';
+    SPM.Sess(i).U(cond).dur         =   0; %repmat(0, (length(SPM.Sess(i).U(cond).ons)),1);
+    SPM.Sess(i).U(cond).P(1).name   =   ['URmem_rating.' num2str(j)];
+    SPM.Sess(i).U(cond).P(1).P      =   unrew_mem_rating(j); %
+    SPM.Sess(i).U(cond).P(1).h      =   1; %LINEAR
 
 end
 

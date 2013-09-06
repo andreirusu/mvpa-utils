@@ -30,8 +30,8 @@ dir_base    = '/Volumes/SAMSUNG/mvpa/functional';%'/Users/dharshan/Documents/SEL
 %SPECIFY WHAT THINGS TO DO: q
 quick_test_var = 0; %1 is a test (i.e. just for subject 1). 0 for full run of all subjects 1:n
 
-%curr_sub_ind = [7, 10, 20] ; % %CURRENT NUMBER OF SUBJECTS
-curr_sub_ind = 1:21 ; % %CURRENT NUMBER OF SUBJECTS
+curr_sub_ind = [7, 10, 20] ; % %CURRENT NUMBER OF SUBJECTS
+%curr_sub_ind = 1:21 ; % %CURRENT NUMBER OF SUBJECTS
 
 disp(curr_sub_ind);
 
@@ -44,7 +44,7 @@ batch_sub_ind=[]; %define this if running a batch analysis across Multiple matla
 batch_analy=[];  %set this to same as analy_ind (defined above) if running batch (can specify as [4 5])
 
 run_des_mx_var      = 1;
-run_estimate_var    = 1;
+run_estimate_var    = 0;
 run_contrasts_var   = 0;
 run_rfx_var         = 0;
 

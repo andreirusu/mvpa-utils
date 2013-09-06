@@ -39,10 +39,14 @@ def process_session(subject_dir, sess, options, train_ds, stats):
     #     stats['accuracy'] = acc
     #print(DELIM1)
     k = 10000
-    plt.plot(np.std(train_ds.samples, axis=1))
-    plt.plot(np.std(test_ds.samples, axis=1))
-    #plt.plot(train_ds.samples[:, k])
-    #plt.plot(test_ds.samples[:, k])
+    plt.subplot(2,2,1)
+    plt.hist(np.mean(train_ds.samples, axis=0), 100, alpha=0.5)
+    plt.subplot(2,2,2)
+    plt.hist(np.std(train_ds.samples, axis=0), 100, alpha=0.5)
+    plt.subplot(2,2,3)
+    plt.hist(np.mean(test_ds.samples, axis=0), 100, alpha=0.5)
+    plt.subplot(2,2,4)
+    plt.hist(np.std(test_ds.samples, axis=0), 100, alpha=0.5)
     
 
 def process_subject(subject_dir, options, stats):
