@@ -32,20 +32,23 @@ def main(options):
         # get training data
         res_name = 'FullRSA.'+ options.RSA + '.' + options.CLF + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         one_back = h5load('one_back.' + dsname + '.' + options.SPACE + '.hdf5')
-        reward_sess1 = h5load('reward.' + dsname + '.sess1'+ '.' + options.SPACE + '.hdf5')
-        reward_sess2 = h5load('reward.' + dsname + '.sess2'+ '.' + options.SPACE + '.hdf5')
-        rest_sess1 = h5load('rest.' + dsname + '.sess1'+ '.' + options.SPACE + '.hdf5')
-        rest_sess2 = h5load('rest.' + dsname + '.sess2'+ '.' + options.SPACE + '.hdf5')
-        rest_sess3 = h5load('rest.' + dsname + '.sess3'+ '.' + options.SPACE + '.hdf5')
+        reward = h5load('reward.' + dsname + '.' + options.SPACE + '.hdf5')
+        #reward_sess1 = h5load('reward.' + dsname + '.sess1'+ '.' + options.SPACE + '.hdf5')
+        #reward_sess2 = h5load('reward.' + dsname + '.sess2'+ '.' + options.SPACE + '.hdf5')
+        #rest_sess1 = h5load('rest.' + dsname + '.sess1'+ '.' + options.SPACE + '.hdf5')
+        #rest_sess2 = h5load('rest.' + dsname + '.sess2'+ '.' + options.SPACE + '.hdf5')
+        #rest_sess3 = h5load('rest.' + dsname + '.sess3'+ '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
         one_back.chunks[:] = 0
-        reward_sess1.chunks[:] = 1
-        reward_sess2.chunks[:] = 2
-        rest_sess1.chunks[:] = 3
-        rest_sess2.chunks[:] = 4
-        rest_sess3.chunks[:] = 5
-        #ds = reward_sess2
-        #ds = concatDatasets(one_back, reward_sess1)
+        #reward_sess1.chunks[:] = 1
+        #reward_sess2.chunks[:] = 2
+        #rest_sess1.chunks[:] = 3
+        #rest_sess2.chunks[:] = 4
+        #rest_sess3.chunks[:] = 5
+        #ds = one_back 
+        ds = reward
+        #ds = concatDatasets(one_back, reward)
+        ds.samples = ds.samples[:, one_back.fa.clusters == 8]
         #ds = concatDatasets(ds, rest_sess1)
         #ds = concatDatasets(one_back, rest_sess1)
         #ds = concatDatasets(ds, reward_sess2)

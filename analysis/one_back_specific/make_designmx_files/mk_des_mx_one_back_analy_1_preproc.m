@@ -60,8 +60,8 @@ regress_volumes = false;
 chair_onsets = all_sub(curr_sub).the_stuff.chair_onsets';
 build_onsets = all_sub(curr_sub).the_stuff.build_onsets';
 
-disp(chair_onsets)
-disp(build_onsets)
+disp(chair_onsets')
+disp(build_onsets')
 
 if all_sub_R_ENC(curr_sub).group == 1 ;
     %%% THIS TRIES TO REGRESS OUT 6 INDIVIDUAL VOLUMES FROM EACH BLOCK

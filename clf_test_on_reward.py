@@ -11,31 +11,25 @@ import random
 from tools import * 
 
 
-random.seed(0)
 
-EXPERIMENT_DIR = '../3_random_subjects'
-EXPORT_DIR = os.getcwd()
-TRAIN_PREFIX = 'one_back'
-TEST_PREFIX = 'reward'
-SPACE           = 'full'
-
-
-
-
-def main() :
+def main(options) :
     print(DELIM1)
-    os.chdir(EXPERIMENT_DIR)
+    os.chdir(options.EXPERIMENT_DIR)
     contents=glob.glob('s*')
     count = 0
-    overall_mean_accuracy = 0
+    overall_mean_error = 0
 
-    os.chdir(EXPORT_DIR)
+    os.chdir(options.EXPORT_DIR)
 
     for dsname in contents :
         # get training data
-        train_ds = h5load(TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5')
+        train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         # get test data
-        test_ds = h5load(TEST_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5')
+        test_ds = h5load(options.TEST_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
+        # select cluster
+        cluster_id = 1
+        train_ds.samples = train_ds.samples[:, train_ds.fa.clusters == cluster_id]
+        test_ds.samples = test_ds.samples[:, test_ds.fa.clusters == cluster_id]
         print('Processing: ' + dsname)
         train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds)
         #train_ds.chunks[:]  = 1 
@@ -44,28 +38,28 @@ def main() :
         print(train_ds.chunks)
         print(test_ds.chunks)
         # train clf
-        clf = configure_clf(train_ds)
+        clf = configure_clf(train_ds, options)
         clf.train(train_ds)
         # test clf and display results
-        err = clf(test_ds)
+        preds = clf(test_ds)
         print(DELIM)
-        mean_accuracy = 1 - np.asscalar(err.samples)
-        overall_mean_accuracy += mean_accuracy
+        print(preds.samples.T[0])
+        print(test_ds.targets)
+        err = np.mean(preds.samples.T[0] == test_ds.targets)
+        print(DELIM)
+        mean_error = np.asscalar(err)
+        overall_mean_error += mean_error
         count += 1
-        print('Mean accuracy: '+str(mean_accuracy))
+        print('Mean error: '+str(mean_error))
         print(DELIM)
     print(DELIM1)
-    overall_mean_accuracy /= count
-    print('Overall mean accuracy: '+str(overall_mean_accuracy))
+    overall_mean_error /= count
+    print('Overall mean error: '+str(overall_mean_error))
     print(DELIM1)
 
 
 
 if __name__ == "__main__" :
-    main()
-
-
-if __debug__:
-    debug.active += ["SLC"]
+    main(parseOptions())
 
 

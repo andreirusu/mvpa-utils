@@ -10,18 +10,24 @@ from tools import *
 
 
 #EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
-#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
+#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 #SPACE = 'roi'
 #MASK = 'brwROImask.nii'
 SPACE = 'full'
 MASK = 'rmask.nii'
+CLUSTERS = 'srwROIclusters.nii'
 
-def get_chunks():
+def get_sessions():
     chunks = np.arange(1,6).repeat(2) 
     chunks = np.concatenate((chunks, chunks), axis=0)
+    return chunks
+
+
+def get_chunks():
+    chunks = np.ones(20, dtype=int) 
     return chunks
 
 
@@ -48,6 +54,13 @@ def main():
         print(ds.nfeatures)
         print(ds.targets)
         print(ds.chunks)
+        # import clusters 
+        clusters_ds = fmri_dataset(samples = os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', CLUSTERS), targets = [-1], chunks = [-1], mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
+        cluster_ids = np.abs(np.round(clusters_ds.samples[0]))
+        print(np.sum(cluster_ids > 0))
+        ds.fa['clusters'] = cluster_ids
+        ds.sa['sessions'] = get_sessions()
+        
         ds.save(os.path.join(EXPORT_DIR, CURRENT_TASK + '.' + subject_dir + '.' + SPACE + '.hdf5'))
         ### PRE-PROCESSING TEST
         ds = preprocess(ds)

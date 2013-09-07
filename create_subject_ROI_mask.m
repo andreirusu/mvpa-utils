@@ -26,7 +26,10 @@ matlabbatch{3}.cfg_basicio.file_fplist.dir(1).src_exbranch = substruct('.','val'
 matlabbatch{3}.cfg_basicio.file_fplist.dir(1).src_output = substruct('.','dirs', '{}',{1});
 matlabbatch{3}.cfg_basicio.file_fplist.filter = '^rsMQ.*nii';
 matlabbatch{3}.cfg_basicio.file_fplist.rec = 'FPList';
-matlabbatch{4}.cfg_basicio.file_move.files = {'/Users/andreirusu/mvpa/ROIs/ROImask.nii'};
+matlabbatch{4}.cfg_basicio.file_move.files = {
+                                              '/Users/andreirusu/mvpa/ROIs/ROImask.nii'
+                                              '/Users/andreirusu/mvpa/ROIs/ROIclusters.nii'
+                                              };
 matlabbatch{4}.cfg_basicio.file_move.action.copyto(1) = cfg_dep;
 matlabbatch{4}.cfg_basicio.file_move.action.copyto(1).tname = 'Copy to';
 matlabbatch{4}.cfg_basicio.file_move.action.copyto(1).tgt_spec{1}(1).name = 'filter';
@@ -119,8 +122,8 @@ matlabbatch{8}.cfg_basicio.cfg_file_split.files(1).sname = 'Normalise: Estimate 
 matlabbatch{8}.cfg_basicio.cfg_file_split.files(1).src_exbranch = substruct('.','val', '{}',{7}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1});
 matlabbatch{8}.cfg_basicio.cfg_file_split.files(1).src_output = substruct('()',{1}, '.','files');
 matlabbatch{8}.cfg_basicio.cfg_file_split.index = {
-                                                   1
-                                                   2
+                                                   [1 2]
+                                                   3
                                                    }';
 matlabbatch{9}.spm.spatial.coreg.estwrite.ref(1) = cfg_dep;
 matlabbatch{9}.spm.spatial.coreg.estwrite.ref(1).tname = 'Reference Image';
@@ -168,8 +171,21 @@ matlabbatch{10}.spm.util.imcalc.input(1).src_exbranch = substruct('.','val', '{}
 matlabbatch{10}.spm.util.imcalc.input(1).src_output = substruct('.','rfiles');
 matlabbatch{10}.spm.util.imcalc.output = 'brwROImask.nii';
 matlabbatch{10}.spm.util.imcalc.outdir = {''};
-matlabbatch{10}.spm.util.imcalc.expression = 'i2 > 0';
+matlabbatch{10}.spm.util.imcalc.expression = 'i2 > 0.1';
 matlabbatch{10}.spm.util.imcalc.options.dmtx = 0;
 matlabbatch{10}.spm.util.imcalc.options.mask = 0;
 matlabbatch{10}.spm.util.imcalc.options.interp = 1;
 matlabbatch{10}.spm.util.imcalc.options.dtype = 4;
+matlabbatch{11}.spm.spatial.smooth.data(1) = cfg_dep;
+matlabbatch{11}.spm.spatial.smooth.data(1).tname = 'Images to Smooth';
+matlabbatch{11}.spm.spatial.smooth.data(1).tgt_spec{1}(1).name = 'filter';
+matlabbatch{11}.spm.spatial.smooth.data(1).tgt_spec{1}(1).value = 'image';
+matlabbatch{11}.spm.spatial.smooth.data(1).tgt_spec{1}(2).name = 'strtype';
+matlabbatch{11}.spm.spatial.smooth.data(1).tgt_spec{1}(2).value = 'e';
+matlabbatch{11}.spm.spatial.smooth.data(1).sname = 'Coregister: Estimate & Reslice: Resliced Images';
+matlabbatch{11}.spm.spatial.smooth.data(1).src_exbranch = substruct('.','val', '{}',{9}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1});
+matlabbatch{11}.spm.spatial.smooth.data(1).src_output = substruct('.','rfiles');
+matlabbatch{11}.spm.spatial.smooth.fwhm = [1 1 1];
+matlabbatch{11}.spm.spatial.smooth.dtype = 0;
+matlabbatch{11}.spm.spatial.smooth.im = 0;
+matlabbatch{11}.spm.spatial.smooth.prefix = 's';

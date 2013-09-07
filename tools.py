@@ -11,7 +11,7 @@ import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, te
 
 import numpy as inp
 
-
+SUBJECT_GROUP = [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1] 
 
 EPSILON = 1e-3
 DELIM   =   '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
@@ -26,11 +26,59 @@ def sphereDataset(ds):
     ds.samples = (ds.samples.T / np.sqrt(np.sum(np.power(ds.samples, 2), axis = 1))).T 
     return ds
 
+
+def preprocess_train_and_test(train_ds, test_ds):
+    print('Original dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
+    # remove constant columns
+    print('Removing voxels with std < '+str(EPSILON)+'...')
+    test_ds = test_ds[:, np.std(train_ds.samples,0) > EPSILON ]
+    train_ds = train_ds[:, np.std(train_ds.samples,0) > EPSILON ]
+    train_ds = train_ds[:, np.std(test_ds.samples,0) > EPSILON ]
+    test_ds = test_ds[:, np.std(test_ds.samples,0) > EPSILON ]
+    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
+    ### REMOVING colums with NaNs
+    print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
+    print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
+    train_ds = train_ds[:, ~np.isnan(np.sum(train_ds.samples, axis=0))]
+    test_ds = test_ds[:, ~np.isnan(np.sum(test_ds.samples, axis=0))]
+    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
+    print('Removing extra volumes...')
+    train_ds = train_ds[train_ds.targets != 0]
+    test_ds = test_ds[test_ds.targets != 0]
+    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
+    #### TEMPORARY FIX: 
+   # print('Truncating extreme values...')
+   # train_ds.samples[train_ds.samples < -5] = -5
+   # train_ds.samples[train_ds.samples > 5] = 5
+   # #### truncating extreme values
+   # test_ds.samples[test_ds.samples < -5] = -5
+   # test_ds.samples[test_ds.samples > 5] = 5
+    #### check for extremes
+    print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
+    print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
+    print('Max train value: ' + str(np.max(train_ds.samples)) + '\nMax test value: ' + str(np.max(test_ds.samples)))
+    #### Z-SCORE
+    #print('Z-scoring...')
+    zscore(train_ds, chunks_attr='chunks')
+    zscore(test_ds, chunks_attr='chunks')
+    #### check for extremes
+    print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
+    print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
+    print('Max train value: ' + str(np.max(train_ds.samples)) + '\nMax test value: ' + str(np.max(test_ds.samples)))
+    ## reject datasets if they contain NaNs
+    print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
+    print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
+    assert(not np.isnan(np.sum(train_ds.samples)))
+    assert(not np.isnan(np.sum(test_ds.samples)))
+    return train_ds, test_ds 
+
+
+
 def preprocess_rsa(dsname, ds) :
         print('Processing: ' + dsname)
         print('Dataset shape: ' + str(ds.shape))
-        #ds=cleanup(zscoreChunks(removeConstantColums(removeNaNColumns(ds))))
-        ds=cleanup(zscoreAll(removeConstantColums(removeNaNColumns(ds))))
+        ds=cleanup(zscoreChunks(removeConstantColums(removeNaNColumns(ds))))
+        #ds=cleanup(zscoreAll(removeConstantColums(removeNaNColumns(ds))))
         #ds.sa['serial_chunks'] = list(ds.chunks)
         #ds.sa.serial_chunks[ ds.sa.serial_chunks <= 5 ] = 1
         #ds.sa.serial_chunks[ ds.sa.serial_chunks > 5 ] = 2
@@ -405,54 +453,6 @@ def splitDataset(ds, frac):
     splitPoint = splitPoint[np.floor(np.size(splitPoint) * frac)]
     print splitPoint
     return ds[ds.chunks < splitPoint], ds[ds.chunks >= splitPoint]
-
-
-
-def preprocess_train_and_test(train_ds, test_ds):
-    print('Original dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
-    # remove constant columns
-    print('Removing voxels with std < '+str(EPSILON)+'...')
-    test_ds = test_ds[:, np.std(train_ds.samples,0) > EPSILON ]
-    train_ds = train_ds[:, np.std(train_ds.samples,0) > EPSILON ]
-    train_ds = train_ds[:, np.std(test_ds.samples,0) > EPSILON ]
-    test_ds = test_ds[:, np.std(test_ds.samples,0) > EPSILON ]
-    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
-    ### REMOVING colums with NaNs
-    print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
-    print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
-    train_ds = train_ds[:, ~np.isnan(np.sum(train_ds.samples, axis=0))]
-    test_ds = test_ds[:, ~np.isnan(np.sum(test_ds.samples, axis=0))]
-    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
-    print('Removing extra volumes...')
-    train_ds = train_ds[train_ds.targets != 0]
-    test_ds = test_ds[test_ds.targets != 0]
-    print('New dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
-    #### TEMPORARY FIX: 
-   # print('Truncating extreme values...')
-   # train_ds.samples[train_ds.samples < -5] = -5
-   # train_ds.samples[train_ds.samples > 5] = 5
-   # #### truncating extreme values
-   # test_ds.samples[test_ds.samples < -5] = -5
-   # test_ds.samples[test_ds.samples > 5] = 5
-    #### check for extremes
-    print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
-    print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
-    print('Max train value: ' + str(np.max(train_ds.samples)) + '\nMax test value: ' + str(np.max(test_ds.samples)))
-    #### Z-SCORE
-    #print('Z-scoring...')
-    #zscore(train_ds, chunks_attr='chunks')
-    #zscore(test_ds, chunks_attr='chunks')
-    #### check for extremes
-    print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
-    print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
-    print('Max train value: ' + str(np.max(train_ds.samples)) + '\nMax test value: ' + str(np.max(test_ds.samples)))
-    ## reject datasets if they contain NaNs
-    print('NaN Count train_ds: '+str(np.sum(np.isnan(train_ds.samples))))
-    print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
-    assert(not np.isnan(np.sum(train_ds.samples)))
-    assert(not np.isnan(np.sum(test_ds.samples)))
-    return train_ds, test_ds 
-
 
 
 def map_voxels(voxels, values, struct_filename, filename):

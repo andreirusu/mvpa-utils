@@ -7,8 +7,8 @@ spm fmri
 
 %% %%%% MANUAL SET: all that needs to be set manually is in  section
 % EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects/';
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects';
-% EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional';
+% EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects';
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional';
 
 
 % %% DICOM IMPORT ALL SUBJECTS IN THE EXPERIMENT_DIR => PROC DIRECTORIES

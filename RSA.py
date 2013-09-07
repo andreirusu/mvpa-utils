@@ -14,6 +14,7 @@ def loadSLResults(dsname, options):
     res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname  
     print('Loading: ' + res_name)
     res = h5load(res_name + '.hdf5')
+    print res
     cvmeans = 0
     # apply statistics to results
     if options.STATS == 'mean':
@@ -30,29 +31,43 @@ def loadSLResults(dsname, options):
     return cvmeans
 
 
-def fsel(stats, ds, options) :
+def fsel(stats, ds, roi_ds, options) :
+    stats_copy = np.array(stats)
     print(DELIM)
-    center = np.argmin(stats)
-    print center
-    print(DELIM)
-    
-    slicer = stats > 10^6
-    slicer[center] = True
-    space="voxel_indices"
-    kwa = {space: Sphere(options.SL_RADIUS)}
-    qe=IndexQueryEngine(**kwa)
-    qe.train(ds)
-    best_sphere_ids = qe.query_byid(center)
-    print np.size(best_sphere_ids)
-    for i in best_sphere_ids :
-        slicer[i] = True
-    return slicer 
+    print(roi_ds.fa.voxel_indices)
+    roi_dict = {}
+    for index, voxel in enumerate(roi_ds.fa.voxel_indices):
+        roi_dict[tuple(voxel)] = index
+    print('Selecting SL sphere...')
+    sz_max = np.power(2*options.SL_RADIUS - 1, 3) - 2  
+    while True :
+        # get the center with lowest statistic
+        center = np.argmin(stats_copy)
+        # get sphere
+        space="voxel_indices"
+        kwa = {space: Sphere(options.SL_RADIUS)}
+        qe=IndexQueryEngine(**kwa)
+        qe.train(ds)
+        best_sphere_ids = qe.query_byid(center)
+        sz = np.size(best_sphere_ids)
+        print(center, sz, sz_max, roi_dict.has_key(tuple(ds.fa.voxel_indices[center])), stats_copy[center]) 
+        print(DELIM)
+        # reject sphere if smaller than 
+        if sz < sz_max or not roi_dict.has_key(tuple(ds.fa.voxel_indices[center])):
+            stats_copy[center] = np.max(stats_copy)
+        else :
+            # commit to this center; compute slicer
+            slicer = stats_copy > 10^6
+            slicer[center] = True
+            for i in best_sphere_ids :
+                slicer[i] = True
+            return slicer 
+
 
 def main(options):
     print(DELIM1)
     os.chdir(options.EXPERIMENT_DIR)
     contents=glob.glob('s*')
-
 
     os.chdir(options.EXPORT_DIR)
     
@@ -65,6 +80,7 @@ def main(options):
         # get training data
         res_name = 'RSA.'+ options.RSA + '.' + options.CLF + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
         train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
+        roi_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + 'roi' + '.hdf5')
         test_ds = h5load(options.TEST_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
         print('Processing: ' + dsname)
         
@@ -74,7 +90,7 @@ def main(options):
         print('New dataset shape: ' + str(ds.shape))
         ds = preprocess_rsa(dsname, ds)
         print('New dataset shape: ' + str(ds.shape))
-        ds.samples = ds.samples[:, fsel(cvmeans, ds, options)]
+        ds.samples = ds.samples[:, fsel(cvmeans, ds, roi_ds, options)]
         print(ds.targets)
         #np.random.shuffle(ds.targets)
         print(ds.targets)
