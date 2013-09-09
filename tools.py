@@ -122,7 +122,7 @@ def parseOptions():
     parser = OptionParser()
     parser.add_option("-d", "--dir", dest="EXPERIMENT_DIR", default='../3_random_subjects',
             help="load datasets from EXPERIMENT_DIR")
-    parser.add_option("-s", "--space", dest="SPACE", default = 'roi',
+    parser.add_option("-s", "--space", dest="SPACE", default = 'full',
             help="read dataset in specified SPACE", metavar="SPACE")
     parser.add_option("-t", "--task", dest="TRAIN_PREFIX", default='one_back',
             help="the specified TASK will be loaded")
@@ -154,6 +154,10 @@ def parseOptions():
             help="file to write cost to")
     parser.add_option("-a", "--save", action="store_true", dest="SAVE", default=False,
             help="save results to file")
+    parser.add_option("-b", "--roi", dest="ROI", default='full',
+            help="if specified, analysis runs only on a specific ROI values: full | all | <AN ROI> ")
+    parser.add_option("-i", "--hem", dest="HEM", default='both',
+            help="if specified, only a certain hemisphere is used; values: both | left | right ")
 
 
     

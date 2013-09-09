@@ -10,8 +10,8 @@ from tools import *
 
 
 #EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
-#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
+#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 #SPACE = 'roi'
@@ -27,7 +27,8 @@ def get_sessions():
 
 
 def get_chunks():
-    chunks = np.ones(20, dtype=int) 
+    chunks = np.arange(1,3).repeat(5) 
+    chunks = np.concatenate((chunks, chunks), axis=0)
     return chunks
 
 
