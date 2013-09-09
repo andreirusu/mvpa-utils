@@ -1,3 +1,4 @@
+
 hem = { '1' : 'left',
         '2' : 'left', 
         '3' : 'left', 
@@ -56,10 +57,9 @@ sens ={ '1' : 'chair',
         '18' : 'chair'}
 
 
-ROIids  
-    = { 'dorsal occipital'              :   [1, 2, 13, 14],
-        'posterior fusiform gyrus'      :   [3, 11],
-        'medial fusiform gyrus'         :   [4, 5, 12, 15],
-        'intraparietal sulcus'          :   [6, 9, 10, 16],
-        'mid-occipital gyrus'           :   [7, 17],
-        'inferior temporal gyrus'       :   [8, 18]}
+ROIids  = { 'dorsal occipital'              :   [1, 2, 13, 14],
+            'posterior fusiform gyrus'      :   [3, 11],
+            'medial fusiform gyrus'         :   [4, 5, 12, 15],
+            'intraparietal sulcus'          :   [6, 9, 10, 16],
+            'mid-occipital gyrus'           :   [7, 17],
+            'inferior temporal gyrus'       :   [8, 18]}
