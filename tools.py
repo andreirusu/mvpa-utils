@@ -109,10 +109,10 @@ def preprocess_rsa(dsname, ds) :
         #hlf = np.array(range(1, 9, 1)).repeat(4)
         #ds.chunks = np.concatenate((hlf, hlf), axis=0)
         printDatasetStats(ds)
+        print('Chunks:\n' + str(ds.chunks))
         print('Targets:\n' + str(ds.targets))
         #np.random.shuffle(ds.targets)
         print('Targets:\n' + str(ds.targets))
-        print('Chunks:\n' + str(ds.chunks))
         print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
         return ds
@@ -245,9 +245,9 @@ def fsel_sl_csvm(ds, options):
     if options.STATS == 'mean':
        proc = FxMapper('samples', np.mean, attrfx='merge') 
     elif options.STATS == 'min':
-        proc = FxMapper('samples', np.max, attrfx='merge') 
-    elif options.STATS == 'max':
         proc = FxMapper('samples', np.min, attrfx='merge') 
+    elif options.STATS == 'max':
+        proc = FxMapper('samples', np.max, attrfx='merge') 
     else:
         raise NameError('Wrong STATS!')
         return None 
@@ -455,23 +455,25 @@ def splitDataset(ds, frac):
     return ds[ds.chunks < splitPoint], ds[ds.chunks >= splitPoint]
 
 
-def map_voxels(voxels, values, struct_filename, filename):
-	struct = h5load(struct_filename)
-	prog = ProgressBar(0, len(voxels))
-	st = np.zeros(struct.shape[1])
-	# find voxels in struct
-	struct_dict = {}
-	for index, voxel in enumerate(struct.fa.voxel_indices):
-		struct_dict[tuple(voxel)] = index
-	for index, voxel in enumerate(voxels):
-		if struct_dict.has_key(tuple(voxel)) :
-			st[struct_dict[tuple(voxel)]] = values[index]
-		prog.increment_amount()
-    		print prog, '\r',
-    		sys.stdout.flush()
-	npair = map2nifti(struct, st)
-	nimg = nibabel.nifti1.Nifti1Image(data=npair.get_data(), affine=None, header=npair.get_header())
-	nimg.to_filename(filename)
+def map_voxels(voxels, values, strct, filename):
+    prog = ProgressBar(0, len(voxels))
+    st = np.zeros(strct.shape[1])
+    # find voxels in strct
+    struct_dict = {}
+    for index, voxel in enumerate(strct.fa.voxel_indices):
+        struct_dict[tuple(voxel)] = index
+    for index, voxel in enumerate(voxels):
+        if struct_dict.has_key(tuple(voxel)) :
+            st[struct_dict[tuple(voxel)]] = values[index]
+            prog.increment_amount()
+            print prog, '\r',
+            sys.stdout.flush()
+    print strct
+    print st.shape
+    print values.shape
+    npair = map2nifti(strct, st)
+    nimg = nibabel.nifti1.Nifti1Image(data=npair.get_data(), affine=None, header=npair.get_header())
+    nimg.to_filename(filename)
 
 
 

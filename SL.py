@@ -25,10 +25,8 @@ def main(options):
     for dsname in contents :
         # get training data
         res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
-        ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
-        print(DELIM1) 
-        print(ds.chunks)
-        print(DELIM1) 
+        train_ds_name = options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5'
+        ds = h5load(train_ds_name)
         ds = preprocess_rsa(dsname, ds)
 
         measure = configure_sl(ds, options)
@@ -58,7 +56,7 @@ def main(options):
         print('Max: '+str(np.max(cvmeans)))
         print(DELIM)
         print('Mapping measure back into original voxel space!')
-        map_voxels(ds.fa.voxel_indices, cvmeans, options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5', res_name + '.nii')
+        map_voxels(ds.fa.voxel_indices, cvmeans, ds, res_name + '.nii')
     pl.show()
     overall_mean_best_measure /= count
     print(DELIM1)
