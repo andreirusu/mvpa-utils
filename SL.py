@@ -8,6 +8,8 @@ import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, te
 
 import numpy as np
 
+from ROIinfo import * 
+
 def main(options):
     print(DELIM1)
     os.chdir(options.EXPERIMENT_DIR)

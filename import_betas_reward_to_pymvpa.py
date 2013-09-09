@@ -8,6 +8,8 @@ import h5py
 
 from tools import *
 
+from ROIinfo import *
+
 
 EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
 #EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'
@@ -77,7 +79,7 @@ def main():
         sorted_onsets = onsets[sorted_onsets_ids]
         print(sorted_onsets)
         ind  = [0, 64]
-        experiment_offset = 4 
+        experiment_offset = 3 
         valid_offset = 4 + experiment_offset
         valid = [False for onset in onsets]
 
