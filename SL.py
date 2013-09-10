@@ -55,8 +55,9 @@ def main(options):
         print('Mean: '+str(np.mean(cvmeans)))
         print('Max: '+str(np.max(cvmeans)))
         print(DELIM)
-        print('Mapping measure back into original voxel space!')
-        map_voxels(ds.fa.voxel_indices, cvmeans, ds, res_name + '.nii')
+        if options.SAVE :
+            print('Mapping measure back into original voxel space!')
+            map_voxels(ds.fa.voxel_indices, cvmeans, ds, res_name + '.nii')
     pl.show()
     overall_mean_best_measure /= count
     print(DELIM1)

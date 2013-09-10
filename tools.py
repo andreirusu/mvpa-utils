@@ -8,6 +8,7 @@ from pprint import pprint
 
 import matplotlib, scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil
 
+from ROIinfo import *
 
 import numpy as inp
 
@@ -19,6 +20,30 @@ DELIM1  =   '###################################################################
 
 ## MAKE EXPERIMENTS FULLY REPEATABLE
 random.seed(0)
+
+
+def selectROI(ds_lst, options):
+    # select cluster
+    if options.ROI != 'full' : 
+        if options.ROI == 'all' :
+            cluster_ids = np.arange(1,19,1) 
+        else:
+            cluster_ids = ROIids[options.ROI]
+        print(cluster_ids)
+        if options.PLOT :
+            pl.figure()
+            pl.hist(ds_lst[0].fa.clusters[ds_lst[0].fa.clusters > 0], 100)
+        if options.HEM != 'both':
+            cluster_ids = [i for i in cluster_ids if (hem[str(i)] == options.HEM)]
+        print(cluster_ids)
+        slicer = [ i for i, cluster in enumerate(ds_lst[0].fa.clusters) if (cluster in cluster_ids) ]
+        print('Slicer: ' + str(np.size(slicer)))
+        for i, ds in enumerate(ds_lst) :
+            ds_lst[i]  = ds_lst[i][:, slicer]
+            print(ds_lst[i].shape)
+    return ds_lst
+
+
 
 
 def sphereDataset(ds):

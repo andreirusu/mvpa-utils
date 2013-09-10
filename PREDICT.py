@@ -15,7 +15,6 @@ overall_mean_err = 0
 
 from ROIinfo import *
 
-
 def process_session(subject_dir, options, train_ds, stats):
     global count
     global overall_mean_err
@@ -28,27 +27,7 @@ def process_session(subject_dir, options, train_ds, stats):
     #train_ds = preprocess_rsa(subject_dir, train_ds)
     #test_ds = preprocess_rsa(subject_dir, test_ds)
     train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds)
-    
-    # select cluster
-    if options.ROI != 'full' : 
-        if options.ROI == 'all' :
-            cluster_ids = np.arange(1,19,1) 
-        else:
-            cluster_ids = ROIids[options.ROI]
-        print(cluster_ids)
-        if options.PLOT :
-            pl.figure()
-            pl.hist(train_ds.fa.clusters[train_ds.fa.clusters > 0], 100)
-        if options.HEM != 'both':
-            cluster_ids = [i for i in cluster_ids if (hem[str(i)] == options.HEM)]
-        print(cluster_ids)
-        slicer = [ i for i, cluster in enumerate(train_ds.fa.clusters) if (cluster in cluster_ids) ]
-        print('Slicer: ' + str(np.size(slicer)))
-        train_ds    = train_ds[:, slicer]
-        test_ds     = test_ds[:, slicer]
-        print(train_ds.shape)
-        print(test_ds.shape)
-
+    train_ds, test_ds = selectROI([train_ds, test_ds], options) 
     # configure classifier
     clf = configure_clf(train_ds, options)
     clf.train(train_ds)
