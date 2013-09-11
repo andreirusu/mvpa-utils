@@ -33,7 +33,7 @@ def import_session(subject_dir, sess):
     print(ds.nfeatures)
     print(ds.targets)
     print(ds.chunks)
-    ds.save(os.path.join(EXPERIMENT_DIR, EXPORT_DIR, CURRENT_TASK + '.'+subject_dir+'.'+sess +'.' + SPACE  +'.hdf5'))
+    ds.save(os.path.join(EXPERIMENT_DIR, EXPORT_DIR, CURRENT_TASK +'.'+sess+ '.'+subject_dir +'.' + SPACE  +'.hdf5'))
     ### PRE-PROCESSING TEST
     ds = preprocess(ds)
 

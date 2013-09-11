@@ -26,8 +26,7 @@ def process_session(subject_dir, options, train_ds, stats):
     print('Processing: ' + subject_dir)
     #train_ds = preprocess_rsa(subject_dir, train_ds)
     #test_ds = preprocess_rsa(subject_dir, test_ds)
-    train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds)
-    train_ds, test_ds = selectROI([train_ds, test_ds], options) 
+    train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
     # configure classifier
     clf = configure_clf(train_ds, options)
     clf.train(train_ds)
@@ -53,6 +52,16 @@ def process_session(subject_dir, options, train_ds, stats):
 
 def process_subject(subject_dir, options, stats):
     print('Subject: ' + subject_dir)
+    import re
+    subject_nr = int(re.findall(r'\d+', subject_dir)[0])
+    if SUBJECT_GROUP[subject_nr] == 1 :
+        print('Rewarderd category: chair')
+    elif SUBJECT_GROUP[subject_nr] == 2 :
+        print('Rewarderd category: house')
+    else:
+        raise NameError('Wrong subject group!')
+        return None 
+
     # get training data
     train_path = options.TRAIN_PREFIX + '.' + subject_dir + '.' + options.SPACE + '.hdf5'
     print('Loading: ' + train_path)

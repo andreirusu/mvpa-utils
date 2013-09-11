@@ -30,9 +30,6 @@ def selectROI(ds_lst, options):
         else:
             cluster_ids = ROIids[options.ROI]
         print(cluster_ids)
-        if options.PLOT :
-            pl.figure()
-            pl.hist(ds_lst[0].fa.clusters[ds_lst[0].fa.clusters > 0], 100)
         if options.HEM != 'both':
             cluster_ids = [i for i in cluster_ids if (hem[str(i)] == options.HEM)]
         print(cluster_ids)
@@ -52,7 +49,7 @@ def sphereDataset(ds):
     return ds
 
 
-def preprocess_train_and_test(train_ds, test_ds):
+def preprocess_train_and_test(train_ds, test_ds, options):
     print('Original dataset shapes: ' + str(train_ds.shape) + ' & ' + str(test_ds.shape))
     # remove constant columns
     print('Removing voxels with std < '+str(EPSILON)+'...')
@@ -95,11 +92,13 @@ def preprocess_train_and_test(train_ds, test_ds):
     print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
     assert(not np.isnan(np.sum(train_ds.samples)))
     assert(not np.isnan(np.sum(test_ds.samples)))
+    print('Selecting ROI...')
+    train_ds, test_ds = selectROI([train_ds, test_ds], options) 
     return train_ds, test_ds 
 
 
 
-def preprocess_rsa(dsname, ds) :
+def preprocess_rsa(dsname, ds, options) :
         print('Processing: ' + dsname)
         print('Dataset shape: ' + str(ds.shape))
         ds=cleanup(zscoreChunks(removeConstantColums(removeNaNColumns(ds))))
@@ -139,6 +138,7 @@ def preprocess_rsa(dsname, ds) :
         #np.random.shuffle(ds.targets)
         print('Targets:\n' + str(ds.targets))
         print('New dataset shape: ' + str(ds.shape))
+        ds = selectROI([ds], options)[0] 
         print(DELIM)
         return ds
 
