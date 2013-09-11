@@ -7,6 +7,8 @@ from tools import *
 import scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil, pprint
 
 import numpy as np
+
+import multiprocessing as mp
     
 ### GLOBAL STATS
 count = 0
@@ -14,6 +16,32 @@ overall_mean_err = 0
 
 
 from ROIinfo import *
+
+
+def predict(train_ds, test_ds, options, shuffle=False) :
+    
+    if shuffle :
+        train_ds = train_ds.copy(deep=True)
+        #print('Targets:\n' + str(train_ds.targets))
+        np.random.shuffle(train_ds.targets)
+        #print('Targets:\n' + str(train_ds.targets))
+    
+    
+    # configure classifier
+    clf = configure_clf(train_ds, options)
+    clf.train(train_ds)
+    preds = clf(test_ds)
+    #print(preds.samples)
+    #print(test_ds.targets)
+    err = -1
+    if not -1 in test_ds.targets :
+        err = np.sum(preds.samples.T != test_ds.targets)*1.0/test_ds.targets.size
+    return preds, err
+
+
+def worker(train_ds, test_ds, options) :
+    preds, err = predict(train_ds, test_ds, options, True)
+    return err
 
 def process_session(subject_dir, options, train_ds, stats):
     global count
@@ -27,12 +55,15 @@ def process_session(subject_dir, options, train_ds, stats):
     #train_ds = preprocess_rsa(subject_dir, train_ds)
     #test_ds = preprocess_rsa(subject_dir, test_ds)
     train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
-    # configure classifier
-    clf = configure_clf(train_ds, options)
-    clf.train(train_ds)
-    preds = clf(test_ds)
-    #print(preds.samples)
-    #print(test_ds.targets)
+    
+    #### PREDICT WITH TRUE LABELS 
+    preds, err = predict(train_ds, test_ds, options, False)
+    print(DELIM)
+    if not -1 in test_ds.targets :
+        count += 1
+        overall_mean_err += err
+        print('Error: ' + str(err))
+        stats['error'] = err
     print(DELIM)
     stats['counts'] = {}
     for cls in np.unique(train_ds.targets) :
@@ -41,14 +72,19 @@ def process_session(subject_dir, options, train_ds, stats):
         print(cls, counts)
     # compute error if labels are available
     print(DELIM)
-    if not -1 in test_ds.targets :
-        count += 1
-        err = np.sum(preds.samples.T != test_ds.targets)*1.0/test_ds.targets.size
-        overall_mean_err += err
-        print('Error: ' + str(err))
-        stats['error'] = err
+    
+    ## PERMUTATION TESTING
+    p = mp.Pool(options.NPROC)
+    nperm = 1000
+    err_perm = [p.apply_async(worker, [train_ds, test_ds, options]) for i in np.arange(0, nperm, 1)]
+    p.close()
+    err_perm = sorted(err_perm)
+    print('Error [5th quantile] : ' + str(err_perm[nperm * 0.05 - 1]))
     print(DELIM)
-
+    if options.PLOT :
+        pl.figure()
+        pl.hist(err_perm, nperm/10)
+        pl.hist([err], nperm/10)
 
 def process_subject(subject_dir, options, stats):
     print('Subject: ' + subject_dir)
