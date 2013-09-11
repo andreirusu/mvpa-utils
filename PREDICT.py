@@ -40,6 +40,7 @@ def worker(lst):
     import random
     n, train_ds, test_ds, options, state =  lst
     random.setstate(state)
+    random.jumpahead(n)
     preds, err = predict(train_ds, test_ds, options, True)
     return err
 
