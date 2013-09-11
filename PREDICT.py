@@ -37,8 +37,9 @@ def predict(train_ds, test_ds, options, shuffle=False) :
 
  
 def worker(lst):
-    n, train_ds, test_ds, options =  lst
-    np.random.seed(n)
+    import random
+    n, train_ds, test_ds, options, state =  lst
+    random.setstate(state)
     preds, err = predict(train_ds, test_ds, options, True)
     return err
 
@@ -76,7 +77,8 @@ def process_session(subject_dir, options, train_ds, stats):
     ## PERMUTATION TESTING
     pool = mp.Pool(options.NPROC)
     nperm = 10000
-    err_perm = pool.map(worker, [(i, train_ds, test_ds, options) for i in np.arange(0,nperm,1)], 100)
+    import random
+    err_perm = pool.map(worker, [(i, train_ds, test_ds, options, random.getstate()) for i in np.arange(0,nperm,1)], 100)
     
     pool.close()
     pool.join()
