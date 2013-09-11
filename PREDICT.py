@@ -19,14 +19,11 @@ from ROIinfo import *
 
 
 def predict(train_ds, test_ds, options, shuffle=False) :
-    
     if shuffle :
         train_ds = train_ds.copy(deep=True)
         #print('Targets:\n' + str(train_ds.targets))
         np.random.shuffle(train_ds.targets)
         #print('Targets:\n' + str(train_ds.targets))
-    
-    
     # configure classifier
     clf = configure_clf(train_ds, options)
     clf.train(train_ds)
@@ -38,10 +35,14 @@ def predict(train_ds, test_ds, options, shuffle=False) :
         err = np.sum(preds.samples.T != test_ds.targets)*1.0/test_ds.targets.size
     return preds, err
 
-
-def worker(train_ds, test_ds, options) :
+ 
+def worker(lst):
+    n, train_ds, test_ds, options =  lst
+    np.random.seed(n)
     preds, err = predict(train_ds, test_ds, options, True)
     return err
+
+
 
 def process_session(subject_dir, options, train_ds, stats):
     global count
@@ -55,7 +56,6 @@ def process_session(subject_dir, options, train_ds, stats):
     #train_ds = preprocess_rsa(subject_dir, train_ds)
     #test_ds = preprocess_rsa(subject_dir, test_ds)
     train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
-    
     #### PREDICT WITH TRUE LABELS 
     preds, err = predict(train_ds, test_ds, options, False)
     print(DELIM)
@@ -74,12 +74,16 @@ def process_session(subject_dir, options, train_ds, stats):
     print(DELIM)
     
     ## PERMUTATION TESTING
-    p = mp.Pool(options.NPROC)
-    nperm = 1000
-    err_perm = [p.apply_async(worker, [train_ds, test_ds, options]) for i in np.arange(0, nperm, 1)]
-    p.close()
-    err_perm = sorted(err_perm)
-    print('Error [5th quantile] : ' + str(err_perm[nperm * 0.05 - 1]))
+    pool = mp.Pool(options.NPROC)
+    nperm = 10000
+    err_perm = pool.map(worker, [(i, train_ds, test_ds, options) for i in np.arange(0,nperm,1)], 100)
+    
+    pool.close()
+    pool.join()
+    err_perm = np.array(sorted(err_perm))
+    ind = int(np.floor(nperm * 0.05 - 1))
+    print ind
+    print('Error [5th quantile] : ' + str(err_perm[ind]))
     print(DELIM)
     if options.PLOT :
         pl.figure()
