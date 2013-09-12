@@ -41,9 +41,8 @@ def worker(lst):
     n, train_ds, test_ds, options, state =  lst
     random.setstate(state)
     random.jumpahead(n)
-    #preds, err = predict(train_ds, test_ds, options, True)
-    #return err
-    return random.random()
+    preds, err = predict(train_ds, test_ds, options, True)
+    return err
 
 
 
@@ -76,23 +75,35 @@ def process_session(subject_dir, options, train_ds, stats):
     # compute error if labels are available
     print(DELIM)
     
-    ## PERMUTATION TESTING
-    pool = mp.Pool(options.NPROC)
-    nperm = 10000
-    import random
-    err_perm = pool.map(worker, [(i, train_ds, test_ds, options, random.getstate()) for i in np.arange(0,nperm,1)], 100)
-    
-    pool.close()
-    pool.join()
-    err_perm = np.array(sorted(err_perm))
-    ind = int(np.floor(nperm * 0.05 - 1))
-    print ind
-    print('Error [5th quantile] : ' + str(err_perm[ind]))
-    print(DELIM)
-    if options.PLOT :
-        pl.figure()
-        pl.hist(err_perm, nperm/10)
-        pl.hist([err], nperm/10)
+    if options.NPERM == 0 :
+        return 
+
+    if options.NPERM >= (10.0/(1 - options.CONF)):
+        ## PERMUTATION TESTING
+        pool = mp.Pool(options.NPROC)
+        nperm = options.NPERM
+        import random
+        random.seed(random.random())
+        state = random.getstate()
+        
+        err_perm = pool.map(worker, [(i, train_ds, test_ds, options, state) for i in np.arange(0,nperm,1)], 100)
+        
+        pool.close()
+        pool.join()
+        err_perm = np.array(sorted(err_perm))
+       
+        # read result
+        ind = int(np.floor(nperm * (1 - options.CONF) - 1))
+        print('Error at ' +  str(1 - options.CONF)  + ' : ' + str(err_perm[ind]))
+        print(DELIM)
+        if options.PLOT :
+            pl.figure()
+            pl.hist(err_perm, nperm/100)
+            pl.hist([err], nperm/100)
+    else:
+        raise NameError('Wrong number of permutations for given confidence level!')
+        return None 
+
 
 def process_subject(subject_dir, options, stats):
     print('Subject: ' + subject_dir)

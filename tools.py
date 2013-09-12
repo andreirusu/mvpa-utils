@@ -204,6 +204,10 @@ def parseOptions():
             help="if specified, analysis runs only on a specific ROI values: full | all | <AN ROI> ")
     parser.add_option("-i", "--hem", dest="HEM", default='both',
             help="if specified, only a certain hemisphere is used; values: both | left | right ")
+    parser.add_option("-g", "--nperm", dest="NPERM", type='int', default=0,
+            help="if specified, a permutation test is performed; labels are randomized NPERM times and the corresponding quantile error is displayed")
+    parser.add_option("-q", "--conf", dest="CONF", type='float', default=0.95,
+            help="confidence level for the permutation test")
 
 
     
