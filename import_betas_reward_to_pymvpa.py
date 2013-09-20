@@ -11,8 +11,8 @@ from tools import *
 from ROIinfo import *
 
 
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
-#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'
+#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
+EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'
 CURRENT_TASK = 'reward' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 SPACE = 'full'
@@ -53,90 +53,92 @@ def main():
     contents=glob.glob('s*')
     print('Found subjects: ' + str(contents))
     for subject_dir in contents :
-        print('Subject: ' + subject_dir)
-        os.chdir(os.path.join(EXPERIMENT_DIR, subject_dir, CURRENT_TASK, 'analysis', '1'))
-        # import clusters 
-        clusters_ds = fmri_dataset(samples = os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', CLUSTERS), targets = [-1], chunks = [-1], mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
-        cluster_ids = np.abs(np.round(clusters_ds.samples[0]))
-        print(np.sum(cluster_ids > 0))
-        # import volumes
-        volumes = glob.glob('beta_*img')
-        volumes = volumes[0:256:2] 
-        with open('trial_onsets.txt', 'r') as f:
-            lines = [line.strip() for line in f]
-        onsets = np.array([float(i) for i in lines[0].split(' ')]) 
-        print(volumes)
-        print(len(volumes))
-        ds = fmri_dataset(samples = volumes, targets = get_labels(), chunks = get_chunks(), mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
-        print(ds.shape)
-        print(ds.nfeatures)
-        print(ds.targets)
-        print(ds.chunks)
-        # remove trials which are too close together
-        print(onsets)
-        sorted_onsets_ids = np.argsort(onsets, axis=0)
-        print sorted_onsets_ids
-        sorted_onsets = onsets[sorted_onsets_ids]
-        print(sorted_onsets)
-        ind  = [0, 64]
-        experiment_offset = 5 
-        valid_offset = 4 + experiment_offset
-        valid = [False for onset in onsets]
+        try:
+            print('Subject: ' + subject_dir)
+            os.chdir(os.path.join(EXPERIMENT_DIR, subject_dir, CURRENT_TASK, 'analysis', '1'))
+            # import clusters 
+            clusters_ds = fmri_dataset(samples = os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', CLUSTERS), targets = [-1], chunks = [-1], mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
+            cluster_ids = np.abs(np.round(clusters_ds.samples[0]))
+            print(np.sum(cluster_ids > 0))
+            # import volumes
+            volumes = glob.glob('beta_*img')
+            volumes = volumes[0:256:2] 
+            with open('trial_onsets.txt', 'r') as f:
+                lines = [line.strip() for line in f]
+            onsets = np.array([float(i) for i in lines[0].split(' ')]) 
+            print(volumes)
+            print(len(volumes))
+            ds = fmri_dataset(samples = volumes, targets = get_labels(), chunks = get_chunks(), mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
+            print(ds.shape)
+            print(ds.nfeatures)
+            print(ds.targets)
+            print(ds.chunks)
+            # remove trials which are too close together
+            print(onsets)
+            sorted_onsets_ids = np.argsort(onsets, axis=0)
+            print sorted_onsets_ids
+            sorted_onsets = onsets[sorted_onsets_ids]
+            print(sorted_onsets)
+            ind  = [0, 64]
+            experiment_offset = 5 
+            valid_offset = 4 + experiment_offset
+            valid = [False for onset in onsets]
 
-        # handle the first onset
-        i = 0
-        current_class = get_class(onsets, sorted_onsets, ind, i)
-        next_ind = np.array(ind)
-        next_ind[current_class] += 1
-        next_class = get_class(onsets, sorted_onsets, next_ind, i+1)
-        print(sorted_onsets[i], ind, onsets[ind[0]], onsets[ind[1]], current_class, next_class)
-        assert(ds.targets[ind[current_class]] == (current_class + 1))
-        assert(ds.targets[ind[next_class]] == (next_class + 1))
-        if  ((sorted_onsets[i+1] - sorted_onsets[i]) > valid_offset) :
-            valid[ind[current_class]] = True 
-        ind[current_class] += 1
-        print('Valid_count: ' + str(np.sum(np.array(valid) == True)))
-
-        # handle all intermediary onsets
-        for i in range(1, np.size(sorted_onsets)-1,1) :
-            prev_class = current_class 
+            # handle the first onset
+            i = 0
             current_class = get_class(onsets, sorted_onsets, ind, i)
             next_ind = np.array(ind)
             next_ind[current_class] += 1
             next_class = get_class(onsets, sorted_onsets, next_ind, i+1)
-            assert(ds.targets[ind[prev_class] - 1] == (prev_class + 1))
+            print(sorted_onsets[i], ind, onsets[ind[0]], onsets[ind[1]], current_class, next_class)
             assert(ds.targets[ind[current_class]] == (current_class + 1))
             assert(ds.targets[ind[next_class]] == (next_class + 1))
-            print(sorted_onsets[i], ind, onsets[ind[0]], onsets[ind[1]], prev_class, current_class, next_class)
-            if (((sorted_onsets[i+1] - sorted_onsets[i]) > valid_offset)  ) and  (((sorted_onsets[i] - sorted_onsets[i-1]) > valid_offset) ) :
+            if  ((sorted_onsets[i+1] - sorted_onsets[i]) > valid_offset) :
                 valid[ind[current_class]] = True 
             ind[current_class] += 1
             print('Valid_count: ' + str(np.sum(np.array(valid) == True)))
 
-        #handle the last onset
-        i = np.size(sorted_onsets) - 1
-        prev_class = current_class 
-        current_class = get_class(onsets, sorted_onsets, ind, i)
-        assert(ds.targets[ind[prev_class] - 1] == (prev_class + 1))
-        assert(ds.targets[ind[current_class]] == (current_class + 1))
-        print(sorted_onsets[i], ind,  prev_class, current_class)
-        if ( ((sorted_onsets[i] - sorted_onsets[i-1]) > valid_offset) ) :
-            valid[ind[current_class]] = True 
-        ind[current_class] += 1
-        print('Valid_count: ' + str(np.sum(np.array(valid) == True)))
+            # handle all intermediary onsets
+            for i in range(1, np.size(sorted_onsets)-1,1) :
+                prev_class = current_class 
+                current_class = get_class(onsets, sorted_onsets, ind, i)
+                next_ind = np.array(ind)
+                next_ind[current_class] += 1
+                next_class = get_class(onsets, sorted_onsets, next_ind, i+1)
+                assert(ds.targets[ind[prev_class] - 1] == (prev_class + 1))
+                assert(ds.targets[ind[current_class]] == (current_class + 1))
+                assert(ds.targets[ind[next_class]] == (next_class + 1))
+                print(sorted_onsets[i], ind, onsets[ind[0]], onsets[ind[1]], prev_class, current_class, next_class)
+                if (((sorted_onsets[i+1] - sorted_onsets[i]) > valid_offset)  ) and  (((sorted_onsets[i] - sorted_onsets[i-1]) > valid_offset) ) :
+                    valid[ind[current_class]] = True 
+                ind[current_class] += 1
+                print('Valid_count: ' + str(np.sum(np.array(valid) == True)))
 
-        assert(ind[0] == (i+1)/2)
-        assert(ind[1] == i+1)
-        print(valid)
-        ds.sa['onsets'] = onsets
-        ds.fa['clusters'] = cluster_ids
-        ds.sa['valid'] = valid
-        ds = ds [ds.sa.valid == True]
-        # save dataset
-        ds.save(os.path.join(EXPORT_DIR,  CURRENT_TASK + '.' + subject_dir + '.' + SPACE + '.hdf5'))
-        ### PRE-PROCESSING TEST
-        ds = preprocess(ds)
+            #handle the last onset
+            i = np.size(sorted_onsets) - 1
+            prev_class = current_class 
+            current_class = get_class(onsets, sorted_onsets, ind, i)
+            assert(ds.targets[ind[prev_class] - 1] == (prev_class + 1))
+            assert(ds.targets[ind[current_class]] == (current_class + 1))
+            print(sorted_onsets[i], ind,  prev_class, current_class)
+            if ( ((sorted_onsets[i] - sorted_onsets[i-1]) > valid_offset) ) :
+                valid[ind[current_class]] = True 
+            ind[current_class] += 1
+            print('Valid_count: ' + str(np.sum(np.array(valid) == True)))
 
+            assert(ind[0] == (i+1)/2)
+            assert(ind[1] == i+1)
+            print(valid)
+            ds.sa['onsets'] = onsets
+            ds.fa['clusters'] = cluster_ids
+            ds.sa['valid'] = valid
+            ds = ds [ds.sa.valid == True]
+            # save dataset
+            ds.save(os.path.join(EXPORT_DIR,  CURRENT_TASK + '.' + subject_dir + '.' + SPACE + '.hdf5'))
+            ### PRE-PROCESSING TEST
+            ds = preprocess(ds)
+        except:
+            continue
 
 
 if __name__ == "__main__" :
