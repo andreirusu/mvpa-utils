@@ -12,7 +12,7 @@ from ROIinfo import *
 
 import numpy as inp
 
-SUBJECT_GROUP = [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1] 
+SUBJECT_GROUP = [0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1] 
 
 EPSILON = 1e-3
 DELIM   =   '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
@@ -106,6 +106,8 @@ def preprocess_train_and_test(train_ds, test_ds, options):
     #print('Z-scoring...')
     zscore(train_ds, chunks_attr='chunks')
     zscore(test_ds, chunks_attr='chunks')
+    #sphereDataset(train_ds)
+    #sphereDataset(test_ds)
     #### check for extremes
     print('Min train value: ' + str(np.min(train_ds.samples)) + '\nMin test value: ' + str(np.min(test_ds.samples)))
     print('Mean train value: ' + str(np.mean(train_ds.samples)) + '\nMean test value: ' + str(np.mean(test_ds.samples)))
@@ -117,6 +119,8 @@ def preprocess_train_and_test(train_ds, test_ds, options):
     assert(not np.isnan(np.sum(test_ds.samples)))
     print('Selecting ROI...')
     train_ds, test_ds = selectROI([train_ds, test_ds], options) 
+    print('Training targets:\n' + str(train_ds.targets))
+    print('Test targets:\n' + str(test_ds.targets))
     return train_ds, test_ds 
 
 
@@ -166,7 +170,7 @@ def preprocess_rsa(dsname, ds, options) :
 
 def parseOptions():
     parser = OptionParser()
-    parser.add_option("-d", "--dir", dest="EXPERIMENT_DIR", default='../3_random_subjects',
+    parser.add_option("-d", "--dir", dest="EXPERIMENT_DIR", default='../functional',
             help="load datasets from EXPERIMENT_DIR")
     parser.add_option("-s", "--space", dest="SPACE", default = 'full',
             help="read dataset in specified SPACE", metavar="SPACE")
@@ -306,6 +310,79 @@ def fsel_sl_csvm(ds, options):
         raise NameError('Wrong STATS!')
         return None 
     return sphere_searchlight(CrossValidation(LinearCSVMC(C=options.LAMBDA), HalfPartitioner()), radius=options.SL_RADIUS, postproc=proc, nproc=options.NPROC)
+    
+
+def configure_clf_dists(ds, options): 
+    clf = None
+    if options.CLF == 'knn':
+        #clf = kNN(k = options.LAMBDA, dfx=mvpa2.clfs.distance.squared_euclidean_distance, enable_ca=['distances']) 
+        def dstf(x, y) :
+            return mvpa2.clfs.distance.pnorm_w_python(x, y, p=1)
+        clf = kNN(k = options.LAMBDA, dfx=dstf, enable_ca=['distances']) 
+    else:
+        raise NameError('Wrong CLF!')
+        return None 
+    fsel = None
+    if options.FSEL.upper() == 'NONE' :
+        return clf
+    elif options.FSEL.upper() == 'ANOVA' :
+        fsel = SensitivityBasedFeatureSelection(
+                OneWayAnova(),
+                FixedNElementTailSelector(options.NFEATURES, mode='select', tail='upper'))
+                #FractionTailSelector(felements=0.01, mode='select', tail='upper'))
+                #RangeElementSelector(lower=0.5, mode='select'))
+    elif options.FSEL.upper() == 'GNB_SL' :
+        fsel = SensitivityBasedFeatureSelection(
+                fsel_sl_gnb(ds, options),
+                FixedNElementTailSelector(options.NFEATURES, mode='select', tail='lower'))
+    elif options.FSEL.upper() == 'CSVM_SL' :
+        fsel = SensitivityBasedFeatureSelection(
+                fsel_sl_csvm(ds, options),
+                FixedNElementTailSelector(options.NFEATURES, mode='select', tail='lower'))
+    else:
+        raise NameError('Wrong FSEL!')
+        return None 
+    fclf = FeatureSelectionClassifier(clf, fsel)
+    return fclf
+    
+
+
+
+def configure_clf_prob(ds, options): 
+    clf = None
+    if options.CLF == 'csvm': 
+        clf = LinearCSVMC(C=options.LAMBDA, probability = 1, enable_ca=['probabilities'])
+    elif options.CLF == 'ocsvm': 
+        #clf = mvpa2.clfs.svm.SVM(svm_impl="ONE_CLASS", kernel=SigmoidLSKernel(gamma=0.1, coef0=0),  nu=options.LAMBDA)
+        #clf = mvpa2.clfs.svm.SVM(svm_impl="ONE_CLASS", kernel=RbfLSKernel(gamma=0.001),  nu=options.LAMBDA)
+        clf = mvpa2.clfs.svm.SVM(svm_impl="ONE_CLASS", kernel=LinearLSKernel(),  nu=options.LAMBDA)
+    elif options.CLF == 'nusvm': 
+        clf = LinearNuSVMC(nu=options.LAMBDA, probability=1, enable_ca=['probabilities'])
+    else:
+        raise NameError('Wrong CLF!')
+        return None 
+    fsel = None
+    if options.FSEL.upper() == 'NONE' :
+        return clf
+    elif options.FSEL.upper() == 'ANOVA' :
+        fsel = SensitivityBasedFeatureSelection(
+                OneWayAnova(),
+                FixedNElementTailSelector(options.NFEATURES, mode='select', tail='upper'))
+                #FractionTailSelector(felements=0.01, mode='select', tail='upper'))
+                #RangeElementSelector(lower=0.5, mode='select'))
+    elif options.FSEL.upper() == 'GNB_SL' :
+        fsel = SensitivityBasedFeatureSelection(
+                fsel_sl_gnb(ds, options),
+                FixedNElementTailSelector(options.NFEATURES, mode='select', tail='lower'))
+    elif options.FSEL.upper() == 'CSVM_SL' :
+        fsel = SensitivityBasedFeatureSelection(
+                fsel_sl_csvm(ds, options),
+                FixedNElementTailSelector(options.NFEATURES, mode='select', tail='lower'))
+    else:
+        raise NameError('Wrong FSEL!')
+        return None 
+    fclf = FeatureSelectionClassifier(clf, fsel)
+    return fclf
     
 
 

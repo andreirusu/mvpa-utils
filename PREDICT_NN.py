@@ -25,44 +25,70 @@ def predict_probs(train_ds, test_ds, options, shuffle=False) :
     #test_ds.targets[test_ds.targets == 2] = 1 
     #test_ds.targets[test_ds.targets == -1] = 1 
     #test_ds = test_ds[0]
+    print('Target:')
     print train_ds.targets
     print test_ds.targets
-   
-
-
+    
     if shuffle :
         train_ds = train_ds.copy(deep=True)
         #print('Targets:\n' + str(train_ds.targets))
         np.random.shuffle(train_ds.targets)
         #print('Targets:\n' + str(train_ds.targets))
     # configure classifier
-    clf = configure_clf_prob(train_ds, options)
+    clf = configure_clf_dists(train_ds, options)
     print clf
     clf.train(train_ds)
     print clf
     preds = clf(test_ds)
     print 'TRGTS: ', test_ds.targets.tolist()
-    print 'PREDS: ', preds.samples.T[0].astype(int).tolist()
-    #print clf.ca.probabilities
+    preds_ds = preds
+    preds = preds.samples.T[0].astype(int).tolist()
+    print 'PREDS: ', preds 
+        
     if options.PLOT:
+        distances_rc = np.squeeze( np.min(clf.ca.distances.samples[:, train_ds.targets == 1], axis=1))
+        distances_uc = np.squeeze( np.min(clf.ca.distances.samples[:, train_ds.targets == 2], axis=1))
+        
+        print distances_rc
+        print distances_uc
+        lmts = [0, 1500, 0, 1500]
+        
+        #sclr = np.max([distances_rc, distances_uc]) / lmts[1]
+        sclr = 1
+        distances_rc /= sclr 
+        distances_uc /= sclr
+
         pl.figure()
+        offset = 1
         if 1 in test_ds.targets :
-            pl.subplot(1,2,1)
-        probs =  np.array([ [pd[1] for (c, pd) in clf.ca.probabilities],
-                            [pd[2] for (c, pd) in clf.ca.probabilities],
-                            [pd[c] for (c, pd) in clf.ca.probabilities] ])
+            offset = 2
+        pl.subplot(offset,2,1)
+        import random
+        probs =  np.array([ random.sample([d for i,d  in enumerate(distances_rc) if True] * 300, 1000),
+                            random.sample([d for i,d  in enumerate(distances_uc) if True] * 300, 1000)])
+        print probs
         pl.boxplot(probs.T)
+        pl.subplot(offset,2,2)
+        pl.plot(np.arange(lmts[0], lmts[1]), np.arange(lmts[0], lmts[1]))
+        pl.plot(distances_rc, distances_uc, 'o') 
+        pl.axis(lmts)
+        
         if 1 in test_ds.targets :
-            pl.subplot(1,2,2)
+            pl.subplot(offset,2, offset + 1)
             import random
-            probs = np.array([random.sample([pd[1] for i, (c, pd) in enumerate(clf.ca.probabilities) if test_ds.targets[i] == 1] * 100, 100) ,
-                              random.sample([pd[1] for i, (c, pd) in enumerate(clf.ca.probabilities) if test_ds.targets[i] == 2] * 100, 100)])
+            probs =  np.array([ random.sample([d for i,d  in enumerate(distances_rc) if test_ds.targets[i] == 1] * 300, 1000),
+                                random.sample([d for i,d  in enumerate(distances_uc) if test_ds.targets[i] == 2] * 300, 1000)])
+            print probs
             pl.boxplot(probs.T)
-    
+            pl.subplot(offset, 2, offset + 2)
+            pl.plot(np.arange(lmts[0], lmts[1]), np.arange(lmts[0], lmts[1]))
+            pl.plot(distances_rc[test_ds.targets == 1], distances_uc[test_ds.targets == 1], 'o') 
+            pl.plot(distances_rc[test_ds.targets == 2], distances_uc[test_ds.targets == 2], 'o') 
+            pl.axis(lmts)
     err = -1
     if 1 in test_ds.targets :
-        err = np.sum(preds.samples.T != test_ds.targets)*1.0/test_ds.targets.size
-    return preds, err
+        err = np.sum(preds != test_ds.targets)*1.0/test_ds.targets.size
+    return preds_ds, err
 
 
 
@@ -95,65 +121,63 @@ def worker(lst):
 
 
 def process_session(subject_dir, options, train_ds, stats):
-    try:
-        global count
-        global overall_mean_err
-        ## get test data
-        test_path =  options.TEST_PREFIX + '.'+subject_dir+'.' + options.SPACE  +'.hdf5'
-        print('Loading: ' + test_path)
-        test_ds = h5load(test_path)
-        ### PRE-PROCESSING
-        print('Processing: ' + subject_dir)
-        #train_ds = preprocess_rsa(subject_dir, train_ds)
-        #test_ds = preprocess_rsa(subject_dir, test_ds)
-        train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
-        #### PREDICT WITH TRUE LABELS 
-        preds, err = predict_probs(train_ds, test_ds, options, False)
-        print(DELIM)
-        if 1 in test_ds.targets :
-            count += 1
-            overall_mean_err += err
-            print('Error: ' + str(err))
-            stats['error'] = err
-        print(DELIM)
-        stats['counts'] = {}
-        for cls in np.unique(train_ds.targets) :
-            counts = np.sum(preds.samples == cls)
-            stats['counts'][cls] = counts
-            print(cls, counts)
-        # compute error if labels are available
-        print(DELIM)
-        
-        if options.NPERM == 0 :
-            return 
+    global count
+    global overall_mean_err
+    ## get test data
+    test_path =  options.TEST_PREFIX + '.'+subject_dir+'.' + options.SPACE  +'.hdf5'
+    print('Loading: ' + test_path)
+    test_ds = h5load(test_path)
+    ### PRE-PROCESSING
+    print('Processing: ' + subject_dir)
+    #train_ds = preprocess_rsa(subject_dir, train_ds)
+    #test_ds = preprocess_rsa(subject_dir, test_ds)
+    train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
+    #### PREDICT WITH TRUE LABELS 
+    preds, err = predict_probs(train_ds, test_ds, options, False)
+    print(DELIM)
+    if 1 in test_ds.targets :
+        count += 1
+        overall_mean_err += err
+        print('Error: ' + str(err))
+        stats['error'] = err
+    print(DELIM)
+    stats['counts'] = {}
+    for cls in np.unique(train_ds.targets) :
+        counts = np.sum(preds.samples == cls)
+        stats['counts'][cls] = counts
+        print(cls, counts)
+    # compute error if labels are available
+    print(DELIM)
+    
+    if options.NPERM == 0 :
+        return 
 
-        if options.NPERM >= (10.0/(1 - options.CONF)):
-            ## PERMUTATION TESTING
-            pool = mp.Pool(options.NPROC)
-            nperm = options.NPERM
-            import random
-            random.seed(random.random())
-            state = random.getstate()
-            
-            err_perm = pool.map(worker, [(i, train_ds, test_ds, options, state) for i in np.arange(0,nperm,1)], 100)
-            
-            pool.close()
-            pool.join()
-            err_perm = np.array(sorted(err_perm))
-           
-            # read result
-            ind = int(np.floor(nperm * (1 - options.CONF) - 1))
-            print('Error at ' +  str(1 - options.CONF)  + ' : ' + str(err_perm[ind]))
-            print(DELIM)
-            if options.PLOT :
-                pl.figure()
-                pl.hist(err_perm, nperm/100)
-                pl.hist([err], nperm/100)
-        else:
-            raise NameError('Wrong number of permutations for given confidence level!')
-            return None 
-    except:
-        pass
+    if options.NPERM >= (10.0/(1 - options.CONF)):
+        ## PERMUTATION TESTING
+        pool = mp.Pool(options.NPROC)
+        nperm = options.NPERM
+        import random
+        random.seed(random.random())
+        state = random.getstate()
+        
+        err_perm = pool.map(worker, [(i, train_ds, test_ds, options, state) for i in np.arange(0,nperm,1)], 100)
+        
+        pool.close()
+        pool.join()
+        err_perm = np.array(sorted(err_perm))
+       
+        # read result
+        ind = int(np.floor(nperm * (1 - options.CONF) - 1))
+        print('Error at ' +  str(1 - options.CONF)  + ' : ' + str(err_perm[ind]))
+        print(DELIM)
+        if options.PLOT :
+            pl.figure()
+            pl.hist(err_perm, nperm/100)
+            pl.hist([err], nperm/100)
+    else:
+        raise NameError('Wrong number of permutations for given confidence level!')
+        return None 
+
 
 def process_subject(subject_dir, options, stats):
     print('Subject: ' + subject_dir)
