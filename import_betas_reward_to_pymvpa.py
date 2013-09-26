@@ -11,8 +11,9 @@ from tools import *
 from ROIinfo import *
 
 
-#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'
+
+#EXPERIMENT_DIR = '/Volumes/backup/mvpa/3_random_subjects'
+EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional'
 CURRENT_TASK = 'reward' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 SPACE = 'full'
@@ -136,7 +137,7 @@ def main():
             # save dataset
             ds.save(os.path.join(EXPORT_DIR,  CURRENT_TASK + '.' + subject_dir + '.' + SPACE + '.hdf5'))
             ### PRE-PROCESSING TEST
-            ds = preprocess(ds)
+            #ds = preprocess(ds)
         except:
             continue
 

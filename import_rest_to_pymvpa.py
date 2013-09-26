@@ -10,8 +10,8 @@ from tools import *
 
 
 #EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
-#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'
+#EXPERIMENT_DIR = '/Volumes/backup/mvpa/3_random_subjects'
+EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional'
 CURRENT_TASK = 'rest' # 'reward' also supported
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 #SPACE = 'roi'
@@ -35,7 +35,7 @@ def import_session(subject_dir, sess):
     print(ds.chunks)
     ds.save(os.path.join(EXPERIMENT_DIR, EXPORT_DIR, CURRENT_TASK +'.'+sess+ '.'+subject_dir +'.' + SPACE  +'.hdf5'))
     ### PRE-PROCESSING TEST
-    ds = preprocess(ds)
+    #ds = preprocess(ds)
 
 
 

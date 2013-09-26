@@ -9,9 +9,8 @@ import h5py
 from tools import *
 
 
-#EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
-#EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/3_random_subjects'  
-EXPERIMENT_DIR = '/Volumes/SAMSUNG/mvpa/functional'  
+#EXPERIMENT_DIR = '/Volumes/backup/mvpa/3_random_subjects'  
+EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional'  
 CURRENT_TASK = 'one_back' 
 EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
 #SPACE = 'roi'
@@ -64,7 +63,7 @@ def main():
         
         ds.save(os.path.join(EXPORT_DIR, CURRENT_TASK + '.' + subject_dir + '.' + SPACE + '.hdf5'))
         ### PRE-PROCESSING TEST
-        ds = preprocess(ds)
+        #ds = preprocess(ds)
 
 
 if __name__ == "__main__" :
