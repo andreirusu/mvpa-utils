@@ -23,8 +23,8 @@ end
 sess_prfx   = 'sess';
 fs          = filesep; %file sep
 
-dir_start    = '/Volumes/SAMSUNG/mvpa';
-dir_base    = '/Volumes/SAMSUNG/mvpa/functional';%'/Users/dharshan/Documents/SELF_FMRI_data/functional';
+dir_start    = '/Volumes/backup/mvpa';
+dir_base    = '/Volumes/backup/mvpa/functional';%'/Users/dharshan/Documents/SELF_FMRI_data/functional';
 %dir_behav=['/Users/' my_name '/Documents/Reward_FMRI_2013/analysis'];%'/Users/dharshan/Documents/SELF_FMRI_data/analysis/sub_data';
 
 %SPECIFY WHAT THINGS TO DO: q

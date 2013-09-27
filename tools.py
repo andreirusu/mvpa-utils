@@ -163,6 +163,8 @@ def preprocess_rsa(dsname, ds, options) :
         print('Chunks:\n' + str(ds.chunks))
         print('Targets:\n' + str(ds.targets))
         print('New dataset shape: ' + str(ds.shape))
+        print('New dataset shape: ' + str(ds.shape))
+        ds = selectROI([ds], options)[0] 
         ds = selectROI([ds], options)[0] 
         print(DELIM)
         return ds
@@ -378,6 +380,8 @@ def configure_clf_prob(ds, options):
         fsel = SensitivityBasedFeatureSelection(
                 fsel_sl_csvm(ds, options),
                 FixedNElementTailSelector(options.NFEATURES, mode='select', tail='lower'))
+    elif options.FSEL.upper() == 'SVD' :
+        fsel = ChainMapper([SVDMapper(), StaticFeatureSelection(slice(0, options.NFEATURES))])
     else:
         raise NameError('Wrong FSEL!')
         return None 
@@ -392,7 +396,7 @@ def configure_clf(ds, options):
         clf = GNB()
     elif options.CLF == 'csvm': 
         clf = LinearCSVMC(C=options.LAMBDA)
-    elif options.CLF == 'nsvm': 
+    elif options.CLF == 'nusvm': 
         clf = LinearNuSVMC(nu=options.LAMBDA)
     elif options.CLF == 'smlr':
         clf = SMLR(lm = options.LAMBDA, seed = 0) 
@@ -418,6 +422,9 @@ def configure_clf(ds, options):
         fsel = SensitivityBasedFeatureSelection(
                 fsel_sl_csvm(ds, options),
                 FixedNElementTailSelector(options.NFEATURES, mode='select', tail='lower'))
+    elif options.FSEL.upper() == 'SVD' :
+        print ds
+        fsel = ChainMapper([SVDMapper(), StaticFeatureSelection(slice(4, 4 + options.NFEATURES))])
     else:
         raise NameError('Wrong FSEL!')
         return None 
@@ -570,12 +577,14 @@ def cleanup(ds):
     return ds
 
 
-def preprocess(ds):
+def preprocess(ds, options):
     print('Original dataset shape: ' + str(ds.shape))
     #return cleanup(zscoreChunks(truncateExtremeValues(removeNaNColumns(removeConstantColums(ds)))))
-    return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
     #return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(setNaNtoMean(ds)))))
- 
+    ds = cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
+    print('New dataset shape: ' + str(ds.shape))
+    ds = selectROI([ds], options)[0] 
+    return ds
 
 
 def splitDataset(ds, frac):

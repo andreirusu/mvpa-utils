@@ -17,35 +17,42 @@ def main(options):
     
     ### GLOBAL STATS
     count = 0
-    overall_mean_accuracy = 0
+    overall_mean_error = 0
 
     for dsname in contents :
-        # get training data
-        res_name = 'CV.'+ options.CV + '.' + options.CLF + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
-        train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
-        print('Processing: ' + dsname)
-        ds = preprocess(train_ds)
-        print('New dataset shape: ' + str(ds.shape))
-        print(DELIM)
-        measure = configure_cv(ds, options)
-        res = measure(ds) # returns errors
-        cvmeans = (1 - res.samples) * 100 # rescales and returns accuracies
-        print('Fold accuracies:')
-        print(cvmeans)
-        if options.SAVE :
-            h5save(res_name + '.hdf5', res)
-        print(DELIM)
-        mean_accuracy = np.mean(cvmeans)
-        print('Mean accuracy: '+str(mean_accuracy))
-        print(DELIM)
-        overall_mean_accuracy += mean_accuracy
-        count += 1
+        try:
+            # get training data
+            res_name = 'CV.'+ options.CV + '.' + options.CLF + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
+            train_ds = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
+            print('Processing: ' + dsname)
+            ds = preprocess(train_ds, options)
+            print('New dataset shape: ' + str(ds.shape))
+            print(DELIM)
+            measure = configure_cv(ds, options)
+            res = measure(ds) # returns errors
+            cvmeans = res.samples # rescales and returns error
+            print('Fold error:')
+            print(cvmeans)
+            if options.SAVE :
+                h5save(res_name + '.hdf5', res)
+            print(DELIM)
+            mean_error = np.mean(cvmeans)
+            print('Mean error: '+str(mean_error))
+            print(DELIM)
+            overall_mean_error += mean_error
+            count += 1
+        except IOError as e:
+                print "I/O error({0}): {1}".format(e.errno, e.strerror)
+                pass
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
     print(DELIM1)
-    overall_mean_accuracy /= count
-    print('Overall mean accuracy: '+str(overall_mean_accuracy))
+    overall_mean_error /= count
+    print('Overall mean error: '+str(overall_mean_error))
     if options.OUTFILE:
         f = open(options.OUTFILE, "w")
-        f.write(str((100 - overall_mean_accuracy) / 100) + "\n")
+        f.write(str(overall_mean_error) + "\n")
         f.close()
     print(DELIM1)
     print('Done\n')

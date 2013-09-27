@@ -4,6 +4,9 @@ from progress_bar import *
 from datetime import *
 from tools import *
 
+from mvpa2.mappers.svd import SVDMapper
+#from mvpa2.mappers.mdp_adaptor import ICAMapper, PCAMapper
+
 import scipy, os, glob, h5py, sys, getopt, nibabel, gc, warnings, tempfile, shutil, pprint
 
 import numpy as np
@@ -18,15 +21,14 @@ overall_mean_err = 0
 from ROIinfo import *
 
 def predict_probs(train_ds, test_ds, options, shuffle=False) :
-    
     #train_ds  = train_ds[train_ds.targets == 1]
     #train_ds.targets[train_ds.targets == 2] = 1 
     #test_ds  = test_ds[test_ds.targets == 1]
     #test_ds.targets[test_ds.targets == 2] = 1 
     #test_ds.targets[test_ds.targets == -1] = 1 
     #test_ds = test_ds[0]
-    print train_ds.targets
-    print test_ds.targets
+    #print train_ds.targets
+    #print test_ds.targets
    
 
 
@@ -39,7 +41,6 @@ def predict_probs(train_ds, test_ds, options, shuffle=False) :
     clf = configure_clf_prob(train_ds, options)
     print clf
     clf.train(train_ds)
-    print clf
     preds = clf(test_ds)
     print 'TRGTS: ', test_ds.targets.tolist()
     print 'PREDS: ', preds.samples.T[0].astype(int).tolist()
@@ -74,6 +75,7 @@ def predict(train_ds, test_ds, options, shuffle=False) :
         #print('Targets:\n' + str(train_ds.targets))
     # configure classifier
     clf = configure_clf(train_ds, options)
+    
     clf.train(train_ds)
     preds = clf(test_ds)
     #print(preds.samples)
@@ -95,84 +97,88 @@ def worker(lst):
 
 
 def process_session(subject_dir, options, train_ds, stats):
-    try:
-        global count
-        global overall_mean_err
-        ## get test data
-        test_path =  options.TEST_PREFIX + '.'+subject_dir+'.' + options.SPACE  +'.hdf5'
-        print('Loading: ' + test_path)
-        test_ds = h5load(test_path)
-        ### PRE-PROCESSING
-        print('Processing: ' + subject_dir)
-        #train_ds = preprocess_rsa(subject_dir, train_ds)
-        #test_ds = preprocess_rsa(subject_dir, test_ds)
-        train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
-        #### PREDICT WITH TRUE LABELS 
-        preds, err = predict_probs(train_ds, test_ds, options, False)
-        print(DELIM)
-        if 1 in test_ds.targets :
-            count += 1
-            overall_mean_err += err
-            print('Error: ' + str(err))
-            stats['error'] = err
-        print(DELIM)
-        stats['counts'] = {}
-        for cls in np.unique(train_ds.targets) :
-            counts = np.sum(preds.samples == cls)
-            stats['counts'][cls] = counts
-            print(cls, counts)
-        # compute error if labels are available
-        print(DELIM)
+    global count
+    global overall_mean_err
+    ## get test data
+    test_path =  options.TEST_PREFIX + '.'+subject_dir+'.' + options.SPACE  +'.hdf5'
+    print('Loading: ' + test_path)
+    test_ds = h5load(test_path)
+    ### PRE-PROCESSING
+    print('Processing: ' + subject_dir)
+    #train_ds = preprocess_rsa(subject_dir, train_ds)
+    #test_ds = preprocess_rsa(subject_dir, test_ds)
+    train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
+    #### PREDICT WITH TRUE LABELS 
+    preds, err = predict(train_ds, test_ds, options, False)
+    print(DELIM)
+    if 1 in test_ds.targets :
+        count += 1
+        overall_mean_err += err
+        print('Error: ' + str(err))
+        stats['error'] = err
+    print(DELIM)
+    stats['counts'] = {}
+    for cls in np.unique(train_ds.targets) :
+        counts = np.sum(preds.samples == cls)
+        stats['counts'][cls] = counts
+        print(cls, counts)
+    # compute error if labels are available
+    print(DELIM)
+    
+    if options.NPERM == 0 :
+        return 
+
+    if options.NPERM >= (10.0/(1 - options.CONF)):
+        ## PERMUTATION TESTING
+        pool = mp.Pool(options.NPROC)
+        nperm = options.NPERM
+        import random
+        random.seed(random.random())
+        state = random.getstate()
         
-        if options.NPERM == 0 :
-            return 
-
-        if options.NPERM >= (10.0/(1 - options.CONF)):
-            ## PERMUTATION TESTING
-            pool = mp.Pool(options.NPROC)
-            nperm = options.NPERM
-            import random
-            random.seed(random.random())
-            state = random.getstate()
-            
-            err_perm = pool.map(worker, [(i, train_ds, test_ds, options, state) for i in np.arange(0,nperm,1)], 100)
-            
-            pool.close()
-            pool.join()
-            err_perm = np.array(sorted(err_perm))
-           
-            # read result
-            ind = int(np.floor(nperm * (1 - options.CONF) - 1))
-            print('Error at ' +  str(1 - options.CONF)  + ' : ' + str(err_perm[ind]))
-            print(DELIM)
-            if options.PLOT :
-                pl.figure()
-                pl.hist(err_perm, nperm/100)
-                pl.hist([err], nperm/100)
-        else:
-            raise NameError('Wrong number of permutations for given confidence level!')
-            return None 
-    except:
-        pass
-
-def process_subject(subject_dir, options, stats):
-    print('Subject: ' + subject_dir)
-    import re
-    subject_nr = int(re.findall(r'\d+', subject_dir)[0])
-    if SUBJECT_GROUP[subject_nr] == 1 :
-        print('Rewarderd category: chair')
-    elif SUBJECT_GROUP[subject_nr] == 2 :
-        print('Rewarderd category: house')
+        err_perm = pool.map(worker, [(i, train_ds, test_ds, options, state) for i in np.arange(0,nperm,1)], 100)
+       # 
+        pool.close()
+        pool.join()
+        err_perm = np.array(sorted(err_perm))
+       
+        # read result
+        ind = int(np.floor(nperm * (1 - options.CONF) - 1))
+        print('Error at ' +  str(1 - options.CONF)  + ' : ' + str(err_perm[ind]))
+        print(DELIM)
+        if options.PLOT :
+            pl.figure()
+            pl.hist(err_perm, nperm/100)
+            pl.hist([err], nperm/100)
     else:
-        raise NameError('Wrong subject group!')
+        raise NameError('Wrong number of permutations for given confidence level!')
         return None 
 
-    # get training data
-    train_path = options.TRAIN_PREFIX + '.' + subject_dir + '.' + options.SPACE + '.hdf5'
-    print('Loading: ' + train_path)
-    train_ds = h5load(train_path)
-    # process test data
-    process_session(subject_dir, options, train_ds, stats)
+def process_subject(subject_dir, options, stats):
+    try:
+        print('Subject: ' + subject_dir)
+        import re
+        subject_nr = int(re.findall(r'\d+', subject_dir)[0])
+        if SUBJECT_GROUP[subject_nr] == 1 :
+            print('Rewarderd category: chair')
+        elif SUBJECT_GROUP[subject_nr] == 2 :
+            print('Rewarderd category: house')
+        else:
+            raise NameError('Wrong subject group!')
+            return None 
+
+        # get training data
+        train_path = options.TRAIN_PREFIX + '.' + subject_dir + '.' + options.SPACE + '.hdf5'
+        print('Loading: ' + train_path)
+        train_ds = h5load(train_path)
+        # process test data
+        process_session(subject_dir, options, train_ds, stats)
+    except IOError as e:
+            print "I/O error({0}): {1}".format(e.errno, e.strerror)
+            pass
+    except:
+        print "Unexpected error:", sys.exc_info()[0]
+        raise
 
 
 def main(options):

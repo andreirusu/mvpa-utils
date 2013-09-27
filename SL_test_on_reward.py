@@ -45,17 +45,14 @@ def main() :
         res = sl(ds)
         h5save('CROSS_SL.R_'+str(SL_RADIUS)+'.'+ SPACE + '.' + dsname+ '.hdf5', res)
         print(res.samples)
-        cvmeans = 1 - np.mean(res.samples, axis=0)
+        cvmeans = np.mean(res.samples, axis=0)
         #pl.figure()
         #pl.hist(cvmeans, 100)
         print('Mapping seachlight results back into original voxel space!')
-        cvmeans = cvmeans*100
-        cvmeans[cvmeans < 60] = 0
-
-        map_voxels(ds.fa.voxel_indices, cvmeans, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'CROSS_SL.R_'+str(SL_RADIUS)+'.'+ SPACE + '.' + dsname+ '.nii')
+        #map_voxels(ds.fa.voxel_indices, cvmeans, TRAIN_PREFIX + '.' + dsname + '.' + SPACE + '.hdf5', 'CROSS_SL.R_'+str(SL_RADIUS)+'.'+ SPACE + '.' + dsname+ '.nii')
 
         print(DELIM1)
-        print('Best accuracy: '+str(np.max(cvmeans)))
+        print('Best error: '+str(np.max(cvmeans)))
         print(DELIM1)
         print('Done\n')
     pl.show()

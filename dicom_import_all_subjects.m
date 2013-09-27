@@ -15,7 +15,6 @@ end
 spm('defaults', 'FMRI');
 spm_jobman('serial', jobs, '', inputs{:});
 
-
 celldisp(sessionPaths);
 
 
@@ -32,6 +31,3 @@ for crun = 1:nrun
 end
 spm('defaults', 'FMRI');
 spm_jobman('serial', jobs, '', inputs{:});
-
-%}
-

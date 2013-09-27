@@ -23,41 +23,50 @@ def main(options):
 
 
     for dsname in contents :
-        # get training data
-        res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
-        train_ds_name = options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5'
-        ds = h5load(train_ds_name)
-        ds = preprocess_rsa(dsname, ds)
+        try:
+            # get training data
+            res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
+            train_ds_name = options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5'
+            
+            ds = h5load(train_ds_name)
+            ds = preprocess_rsa(dsname, ds, options)
 
-        measure = configure_sl(ds, options)
-        res = measure(ds)
-        h5save(res_name + '.hdf5', res)
-        # apply statistics to results
-        cvmeans = 0
-        if options.STATS == 'mean':
-            cvmeans = np.mean(res.samples, axis=0)
-        elif options.STATS == 'min':
-            cvmeans = np.min(res.samples, axis=0)
-        elif options.STATS == 'max':
-            cvmeans = np.max(res.samples, axis=0)
-        else:
-            raise NameError('Wrong STATS!')
-            return None 
-        print('Stats:')
-        print(cvmeans)
-        if options.PLOT :
-            pl.figure()
-            pl.hist(cvmeans, 100)
-        print(DELIM)
-        count += 1
-        overall_mean_best_measure += np.mean(cvmeans)
-        print('Min: '+str(np.min(cvmeans)))
-        print('Mean: '+str(np.mean(cvmeans)))
-        print('Max: '+str(np.max(cvmeans)))
-        print(DELIM)
-        if options.SAVE :
-            print('Mapping measure back into original voxel space!')
-            map_voxels(ds.fa.voxel_indices, cvmeans, ds, res_name + '.nii')
+            measure = configure_sl(ds, options)
+            res = measure(ds)
+            h5save(res_name + '.hdf5', res)
+            # apply statistics to results
+            cvmeans = 0
+            if options.STATS == 'mean':
+                cvmeans = np.mean(res.samples, axis=0)
+            elif options.STATS == 'min':
+                cvmeans = np.min(res.samples, axis=0)
+            elif options.STATS == 'max':
+                cvmeans = np.max(res.samples, axis=0)
+            else:
+                raise NameError('Wrong STATS!')
+                return None 
+            print('Stats:')
+            print(cvmeans)
+            if options.PLOT :
+                pl.figure()
+                pl.hist(cvmeans, 100)
+            print(DELIM)
+            count += 1
+            overall_mean_best_measure += np.mean(cvmeans)
+            print('Min: '+str(np.min(cvmeans)))
+            print('Mean: '+str(np.mean(cvmeans)))
+            print('Max: '+str(np.max(cvmeans)))
+            print(DELIM)
+            if options.SAVE :
+                print('Mapping measure back into original voxel space!')
+                map_voxels(ds.fa.voxel_indices, cvmeans, ds, res_name + '.nii')
+        except IOError as e:
+                print "I/O error({0}): {1}".format(e.errno, e.strerror)
+                pass
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+    
     pl.show()
     overall_mean_best_measure /= count
     print(DELIM1)
