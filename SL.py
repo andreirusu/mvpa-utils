@@ -10,6 +10,34 @@ import numpy as np
 
 from ROIinfo import * 
 
+
+def concatDatasets(ds1, ds2):
+    ds = dataset_wizard(samples=np.concatenate((ds1.samples, ds2.samples), axis=0), targets=np.concatenate((ds1.targets, ds2.targets), axis=0), chunks=np.concatenate((ds1.chunks, ds2.chunks), axis=0))
+    ds.fa['voxel_indices'] = ds1.fa['voxel_indices']
+    return ds 
+
+
+
+def get_dataset(dsname, options) :
+    one_back = h5load('one_back.' + dsname + '.' + options.SPACE + '.hdf5')
+    reward = h5load('reward.' + dsname + '.' + options.SPACE + '.hdf5')
+    #rest_sess1 = h5load('rest.sess1.' + dsname + '.' + options.SPACE + '.hdf5')
+    #rest_sess2 = h5load('rest.sess2.' + dsname + '.' + options.SPACE + '.hdf5')
+    #rest_sess3 = h5load('rest.sess3.' + dsname + '.' + options.SPACE + '.hdf5')
+    print('Processing: ' + dsname)
+    reward.chunks += np.max(one_back.chunks)
+    #rest_sess1.chunks[:] += np.max(reward.chunks)
+    #rest_sess2.chunks[:] += np.max(rest_sess1.chunks)
+    #rest_sess3.chunks[:] += np.max(rest_sess2.chunks)
+    ds = concatDatasets(one_back, reward)
+    ds = concatDatasets(ds, reward)
+    #ds = concatDatasets(ds, rest_sess1)
+    #ds = concatDatasets(ds, rest_sess2)
+    #ds = concatDatasets(ds, rest_sess3)
+    return ds
+
+
+
 def main(options):
     print(DELIM1)
     os.chdir(options.EXPERIMENT_DIR)
@@ -26,9 +54,8 @@ def main(options):
         try:
             # get training data
             res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
-            train_ds_name = options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5'
             
-            ds = h5load(train_ds_name)
+            ds = get_dataset(dsname, options)
             ds = preprocess_rsa(dsname, ds, options)
 
             measure = configure_sl(ds, options)
@@ -61,6 +88,7 @@ def main(options):
                 print('Mapping measure back into original voxel space!')
                 map_voxels(ds.fa.voxel_indices, cvmeans, ds, res_name + '.nii')
         except IOError as e:
+                print e
                 print "I/O error({0}): {1}".format(e.errno, e.strerror)
                 pass
         except:

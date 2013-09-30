@@ -172,7 +172,7 @@ def preprocess_rsa(dsname, ds, options) :
 
 def parseOptions():
     parser = OptionParser()
-    parser.add_option("-d", "--dir", dest="EXPERIMENT_DIR", default='../functional',
+    parser.add_option("-d", "--dir", dest="EXPERIMENT_DIR", default='../3_random_subjects',
             help="load datasets from EXPERIMENT_DIR")
     parser.add_option("-s", "--space", dest="SPACE", default = 'full',
             help="read dataset in specified SPACE", metavar="SPACE")

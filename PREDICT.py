@@ -209,7 +209,7 @@ def main(options):
         stats[subject_dir] = {}
         process_subject(subject_dir, options, stats[subject_dir])
     # save stats
-    res_name    = 'PRED.'+ options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE
+    res_name    = 'PRED.'+ options.ROI +'.' + options.HEM+ '.' + options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE
     h5save(res_name + '.hdf5', stats) 
     # print results
     
