@@ -162,8 +162,18 @@ def process_hem(subject_dir, options, train_ds, test_ds, stats):
 
 
 def process_roi(subject_dir, options, train_ds, test_ds, stats):
-    stats[options.HEM] = {}
-    process_hem(subject_dir, options, train_ds, test_ds, stats[options.HEM])
+    if options.HEM == "scan" :
+        for hem in ['left', 'right', 'both'] : 
+            try:
+                new_options = copy.deepcopy(options)
+                new_options.HEM = hem
+                stats[new_options.HEM] = {}
+                process_hem(subject_dir, new_options, train_ds, test_ds, stats[new_options.HEM]) 
+            except:
+                pass
+    else:
+        stats[options.HEM] = {}
+        process_hem(subject_dir, options, train_ds, test_ds, stats[options.HEM])
 
 
 def process_sessions(subject_dir, options, train_ds, stats):
@@ -177,8 +187,16 @@ def process_sessions(subject_dir, options, train_ds, stats):
     print('Processing: ' + subject_dir)
     train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
     
-    stats[options.ROI] = {}
-    process_roi(subject_dir, options, train_ds, test_ds, stats[options.ROI]) 
+    if options.ROI == "scan" :
+        for roi in ROIids : 
+            new_options = copy.deepcopy(options)
+            new_options.ROI = roi
+            stats[new_options.ROI] = {}
+            process_roi(subject_dir, new_options, train_ds, test_ds, stats[new_options.ROI]) 
+
+    else:
+        stats[options.ROI] = {}
+        process_roi(subject_dir, options, train_ds, test_ds, stats[options.ROI]) 
     
 
    
