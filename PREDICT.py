@@ -20,6 +20,22 @@ overall_mean_err = 0
 
 from ROIinfo import *
 
+
+def mean_cv_error(ds, options):
+    measure = configure_cv(ds, options)
+    res = measure(ds) # returns errors
+    cvmeans = res.samples # rescales and returns error
+    print('Fold error:')
+    print(cvmeans)
+    print(DELIM)
+    mean_error = np.mean(cvmeans)
+    print('Mean CV error: '+str(mean_error))
+    print(DELIM)
+    return mean_error
+
+
+
+
 def predict_probs(train_ds, test_ds, options, shuffle=False) :
     #train_ds  = train_ds[train_ds.targets == 1]
     #train_ds.targets[train_ds.targets == 2] = 1 
@@ -113,6 +129,12 @@ def process_hem(subject_dir, options, train_ds, test_ds, stats):
     print('Loading: ' + test_path)
     train_ds, test_ds = selectROI([train_ds, test_ds], options) 
     stats['voxel_count'] = test_ds.shape[1] 
+    
+    
+    #### TEST CONSISTENCY OF DSETS
+    stats['train_mean_cv_error'] = mean_cv_error(train_ds, options)
+    stats['test_mean_cv_error'] = mean_cv_error(test_ds, options)
+    
     #### PREDICT WITH TRUE LABELS 
     preds, err, probs = predict_probs(train_ds, test_ds, options, False)
     print(DELIM)
