@@ -29,8 +29,6 @@ def predict_probs(train_ds, test_ds, options, shuffle=False) :
     #test_ds = test_ds[0]
     #print train_ds.targets
     #print test_ds.targets
-   
-
 
     if shuffle :
         train_ds = train_ds.copy(deep=True)
@@ -44,7 +42,6 @@ def predict_probs(train_ds, test_ds, options, shuffle=False) :
     preds = clf(test_ds)
     print 'TRGTS: ', test_ds.targets.tolist()
     print 'PREDS: ', preds.samples.T[0].astype(int).tolist()
-    #print clf.ca.probabilities
     if options.PLOT:
         pl.figure()
         if 1 in test_ds.targets :
@@ -63,7 +60,19 @@ def predict_probs(train_ds, test_ds, options, shuffle=False) :
     err = -1
     if 1 in test_ds.targets :
         err = np.sum(preds.samples.T != test_ds.targets)*1.0/test_ds.targets.size
-    return preds, err
+    
+    
+    
+    #print clf.ca.probabilities
+    
+    probs =  np.array([pd[1] for (c, pd) in clf.ca.probabilities])
+                       # [pd[2] for (c, pd) in clf.ca.probabilities],
+                       # [pd[c] for (c, pd) in clf.ca.probabilities] 
+    print probs
+    #pl.figure()
+    #pl.hist(probs)
+    
+    return preds, err, probs
 
 
 
@@ -96,7 +105,7 @@ def worker(lst):
 
 
 
-def process_session(subject_dir, options, train_ds, stats):
+def process_roi_hem(subject_dir, options, train_ds, stats):
     global count
     global overall_mean_err
     ## get test data
@@ -108,8 +117,9 @@ def process_session(subject_dir, options, train_ds, stats):
     #train_ds = preprocess_rsa(subject_dir, train_ds)
     #test_ds = preprocess_rsa(subject_dir, test_ds)
     train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
+    
     #### PREDICT WITH TRUE LABELS 
-    preds, err = predict(train_ds, test_ds, options, False)
+    preds, err, probs = predict_probs(train_ds, test_ds, options, False)
     print(DELIM)
     if 1 in test_ds.targets :
         count += 1
@@ -118,6 +128,7 @@ def process_session(subject_dir, options, train_ds, stats):
         stats['error'] = err
     print(DELIM)
     stats['counts'] = {}
+    stats['probs'] = probs
     for cls in np.unique(train_ds.targets) :
         counts = np.sum(preds.samples == cls)
         stats['counts'][cls] = counts
@@ -154,6 +165,25 @@ def process_session(subject_dir, options, train_ds, stats):
         raise NameError('Wrong number of permutations for given confidence level!')
         return None 
 
+
+def process_roi(subject_dir, options, train_ds, stats):
+
+def process_session(subject_dir, options, train_ds, stats):
+    global count
+    global overall_mean_err
+    ## get test data
+    test_path =  options.TEST_PREFIX + '.'+subject_dir+'.' + options.SPACE  +'.hdf5'
+    print('Loading: ' + test_path)
+    test_ds = h5load(test_path)
+    ### PRE-PROCESSING
+    print('Processing: ' + subject_dir)
+    #train_ds = preprocess_rsa(subject_dir, train_ds)
+    #test_ds = preprocess_rsa(subject_dir, test_ds)
+    train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
+     
+    
+   
+   
 def process_subject(subject_dir, options, stats):
     try:
         print('Subject: ' + subject_dir)
@@ -203,6 +233,7 @@ def main(options):
     stats={}
     os.chdir(options.EXPORT_DIR)
     stats['subjects'] = []
+    stats['options'] = vars(options)
     print('Found subjects: ' + str(contents))
     for subject_dir in contents :
         stats['subjects'].append(subject_dir)
@@ -212,7 +243,6 @@ def main(options):
     res_name    = 'PRED.'+ options.ROI +'.' + options.HEM+ '.' + options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE
     h5save(res_name + '.hdf5', stats) 
     # print results
-    
     print('Global stats:')
     pprint.pprint(stats, width=80)
     if count > 0 :

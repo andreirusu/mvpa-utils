@@ -38,7 +38,59 @@ def get_preds(task, options):
         raise
 
 
+def group_test_mean(preds, task1, task2) :
+    print(DELIM1)
+    print 'task1: ', task1, 'task2: ', task2
+    s21 = [ st.ttest_ind(preds[task2][s]['probs'], preds[task1][s]['probs'], equal_var=False)[0].item() for s in preds[task1]['subjects'] ]
+    print s21
+    print np.mean(s21)
+    print 't-statistic = %6.3f pvalue = %6.4f' %  st.ttest_1samp(s21, 0)
+    print(DELIM)
 
+
+def group_test(preds, task1, task2) :
+    print(DELIM1)
+    print 'task1: ', task1, 'task2: ', task2
+    s21 = [ st.levene(preds[task2][s]['probs'], preds[task1][s]['probs'], center='median')[0].item() for s in preds[task1]['subjects'] ]
+    print s21
+    print np.mean(s21)
+    print 't-statistic = %6.3f pvalue = %6.4f' %  st.ttest_1samp(s21, 0)
+    print(DELIM)
+
+
+
+
+
+def test_probs(preds, tasks,  options) :
+    group_test_mean(preds, tasks[2], tasks[1])
+    group_test_mean(preds, tasks[3], tasks[2])
+    group_test_mean(preds, tasks[3], tasks[1])
+
+
+def test_counts(preds, tasks,  options) :
+    print(DELIM1)
+    print 's21'
+    s21 = [ ( preds[tasks[2]][s]['counts'][1] - preds[tasks[1]][s]['counts'][1] ) for s in preds[tasks[1]]['subjects'] ]
+    print s21
+    print np.mean(s21)
+    print 't-statistic = %6.3f pvalue = %6.4f' %  st.ttest_1samp(s21, 0)
+    print(DELIM)
+
+    print 's32'
+    s32 = [ ( preds[tasks[3]][s]['counts'][1] - preds[tasks[2]][s]['counts'][1] ) for s in preds[tasks[1]]['subjects'] ]
+    print s32
+    print np.mean(s32)
+    print 't-statistic = %6.3f pvalue = %6.4f' %  st.ttest_1samp(s32, 0)
+    print(DELIM)
+
+    
+    print 's31'
+    s31 = [ ( preds[tasks[3]][s]['counts'][1] - preds[tasks[1]][s]['counts'][1] )  for s in preds[tasks[1]]['subjects'] ]
+    print s31
+    print np.mean(s31)
+    print 't-statistic = %6.3f pvalue = %6.4f' %  st.ttest_1samp(s31, 0)
+    print(DELIM)
+    
 
 
 def main(options):
@@ -68,30 +120,11 @@ def main(options):
     for task in tasks :
         preds[task] = get_preds(task, options)
     print preds
+   
+    #test_counts(preds, tasks,  options)
     
-    print(DELIM1)
-    print 's21'
-    s21 = [ ( preds[tasks[2]][s]['counts'][1] - preds[tasks[1]][s]['counts'][1] ) for s in preds[tasks[1]]['subjects'] ]
-    print s21
-    print np.mean(s21)
-    print 't-statistic = %6.3f pvalue = %6.4f' %  st.ttest_1samp(s21, 0)
-    print(DELIM)
+    test_probs(preds, tasks,  options)
 
-    print 's32'
-    s32 = [ ( preds[tasks[3]][s]['counts'][1] - preds[tasks[2]][s]['counts'][1] ) for s in preds[tasks[1]]['subjects'] ]
-    print s32
-    print np.mean(s32)
-    print 't-statistic = %6.3f pvalue = %6.4f' %  st.ttest_1samp(s32, 0)
-    print(DELIM)
-
-    
-    print 's31'
-    s31 = [ ( preds[tasks[3]][s]['counts'][1] - preds[tasks[1]][s]['counts'][1] )  for s in preds[tasks[1]]['subjects'] ]
-    print s31
-    print np.mean(s31)
-    print 't-statistic = %6.3f pvalue = %6.4f' %  st.ttest_1samp(s31, 0)
-    print(DELIM)
-    
     ### save results
     stats={}
     res_name    = 'ALLSTATS.'+ options.ROI +'.' + options.HEM+ '.' + options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE

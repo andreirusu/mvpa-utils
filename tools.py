@@ -163,9 +163,8 @@ def preprocess_rsa(dsname, ds, options) :
         print('Chunks:\n' + str(ds.chunks))
         print('Targets:\n' + str(ds.targets))
         print('New dataset shape: ' + str(ds.shape))
+        ds = selectROI([ds], options)[0] 
         print('New dataset shape: ' + str(ds.shape))
-        ds = selectROI([ds], options)[0] 
-        ds = selectROI([ds], options)[0] 
         print(DELIM)
         return ds
 
@@ -207,9 +206,9 @@ def parseOptions():
     parser.add_option("-a", "--save", action="store_true", dest="SAVE", default=False,
             help="save results to file")
     parser.add_option("-b", "--roi", dest="ROI", default='full',
-            help="if specified, analysis runs only on a specific ROI values: full | all | <AN ROI> ")
+            help="if specified, analysis runs only on a specific ROI values: full | all | <AN ROI> | scan ")
     parser.add_option("-i", "--hem", dest="HEM", default='both',
-            help="if specified, only a certain hemisphere is used; values: both | left | right ")
+            help="if specified, only a certain hemisphere is used; values: both | left | right | scan")
     parser.add_option("-g", "--nperm", dest="NPERM", type='int', default=0,
             help="if specified, a permutation test is performed; labels are randomized NPERM times and the corresponding quantile error is displayed")
     parser.add_option("-q", "--conf", dest="CONF", type='float', default=0.95,
@@ -218,7 +217,6 @@ def parseOptions():
 
     
     (options, args) = parser.parse_args()
-    
     print('Run parameters:')
     pprint(options)
     print('Args: ')
