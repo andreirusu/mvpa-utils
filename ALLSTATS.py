@@ -122,12 +122,11 @@ def main(options):
     print preds
    
     #test_counts(preds, tasks,  options)
-    
-    test_probs(preds, tasks,  options)
+    #test_probs(preds, tasks,  options)
 
     ### save results
     stats={}
-    
+    stats['preds'] = preds
     
     # save stats
     res_name    = 'ALLSTATS.'+ options.ROI +'.' + options.HEM+ '.' + options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE
