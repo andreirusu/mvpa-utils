@@ -127,9 +127,11 @@ def main(options):
 
     ### save results
     stats={}
+    
+    
+    # save stats
     res_name    = 'ALLSTATS.'+ options.ROI +'.' + options.HEM+ '.' + options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE
     h5save(res_name + '.hdf5', stats) 
-    
    
     # print results
     print(DELIM1)
