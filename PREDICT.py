@@ -112,7 +112,7 @@ def process_hem(subject_dir, options, train_ds, test_ds, stats):
     test_path =  options.TEST_PREFIX + '.'+subject_dir+'.' + options.SPACE  +'.hdf5'
     print('Loading: ' + test_path)
     train_ds, test_ds = selectROI([train_ds, test_ds], options) 
-    
+    stats['voxel_count'] = test_ds.shape[1] 
     #### PREDICT WITH TRUE LABELS 
     preds, err, probs = predict_probs(train_ds, test_ds, options, False)
     print(DELIM)
