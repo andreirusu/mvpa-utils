@@ -23,6 +23,7 @@ random.seed(0)
 
 
 def selectROI(ds_lst, options):
+    print('Selecting ROI...')
     # select cluster
     if options.ROI != 'full' : 
         if options.ROI == 'all' :
@@ -117,8 +118,7 @@ def preprocess_train_and_test(train_ds, test_ds, options):
     print('NaN Count test_ds: '+str(np.sum(np.isnan(test_ds.samples))))
     assert(not np.isnan(np.sum(train_ds.samples)))
     assert(not np.isnan(np.sum(test_ds.samples)))
-    print('Selecting ROI...')
-    train_ds, test_ds = selectROI([train_ds, test_ds], options) 
+    #train_ds, test_ds = selectROI([train_ds, test_ds], options) 
     print('Training targets:\n' + str(train_ds.targets))
     print('Test targets:\n' + str(test_ds.targets))
     return train_ds, test_ds 
@@ -163,7 +163,7 @@ def preprocess_rsa(dsname, ds, options) :
         print('Chunks:\n' + str(ds.chunks))
         print('Targets:\n' + str(ds.targets))
         print('New dataset shape: ' + str(ds.shape))
-        ds = selectROI([ds], options)[0] 
+        #ds = selectROI([ds], options)[0] 
         print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
         return ds
@@ -581,7 +581,7 @@ def preprocess(ds, options):
     #return cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(setNaNtoMean(ds)))))
     ds = cleanup(zscoreChunks(removeConstantColums(removeExtremeColumns(removeNaNColumns(ds)))))
     print('New dataset shape: ' + str(ds.shape))
-    ds = selectROI([ds], options)[0] 
+    #ds = selectROI([ds], options)[0] 
     return ds
 
 

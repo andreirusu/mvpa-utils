@@ -105,18 +105,13 @@ def worker(lst):
 
 
 
-def process_roi_hem(subject_dir, options, train_ds, stats):
+def process_hem(subject_dir, options, train_ds, test_ds, stats):
     global count
     global overall_mean_err
     ## get test data
     test_path =  options.TEST_PREFIX + '.'+subject_dir+'.' + options.SPACE  +'.hdf5'
     print('Loading: ' + test_path)
-    test_ds = h5load(test_path)
-    ### PRE-PROCESSING
-    print('Processing: ' + subject_dir)
-    #train_ds = preprocess_rsa(subject_dir, train_ds)
-    #test_ds = preprocess_rsa(subject_dir, test_ds)
-    train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
+    train_ds, test_ds = selectROI([train_ds, test_ds], options) 
     
     #### PREDICT WITH TRUE LABELS 
     preds, err, probs = predict_probs(train_ds, test_ds, options, False)
@@ -166,9 +161,12 @@ def process_roi_hem(subject_dir, options, train_ds, stats):
         return None 
 
 
-def process_roi(subject_dir, options, train_ds, stats):
+def process_roi(subject_dir, options, train_ds, test_ds, stats):
+    stats[options.HEM] = {}
+    process_hem(subject_dir, options, train_ds, test_ds, stats[options.HEM])
 
-def process_session(subject_dir, options, train_ds, stats):
+
+def process_sessions(subject_dir, options, train_ds, stats):
     global count
     global overall_mean_err
     ## get test data
@@ -177,11 +175,12 @@ def process_session(subject_dir, options, train_ds, stats):
     test_ds = h5load(test_path)
     ### PRE-PROCESSING
     print('Processing: ' + subject_dir)
-    #train_ds = preprocess_rsa(subject_dir, train_ds)
-    #test_ds = preprocess_rsa(subject_dir, test_ds)
     train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
-     
     
+    stats[options.ROI] = {}
+    process_roi(subject_dir, options, train_ds, test_ds, stats[options.ROI]) 
+    
+
    
    
 def process_subject(subject_dir, options, stats):
@@ -202,7 +201,7 @@ def process_subject(subject_dir, options, stats):
         print('Loading: ' + train_path)
         train_ds = h5load(train_path)
         # process test data
-        process_session(subject_dir, options, train_ds, stats)
+        process_sessions(subject_dir, options, train_ds, stats)
     except IOError as e:
             print "I/O error({0}): {1}".format(e.errno, e.strerror)
             pass
