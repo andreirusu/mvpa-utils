@@ -63,7 +63,7 @@ for crun = 1:nrun
     white_binary_mask = (white_mask(1).dat(:,:,:) > 0.99);
     disp(size(white_binary_mask));
     disp(sum(sum(sum(white_binary_mask))))
-     %%      GET CSF MASK
+    %%      GET CSF MASK
     clear csf_mask
     csf_mask = nifti([sessionPaths{crun}, '/../one_back/struct/PROC/rtrimmed_csf.nii']);
     disp(csf_mask(1).dat.dim)

@@ -28,7 +28,11 @@ from ROIinfo import *
 def group_test_mean(preds, task1, task2, roi, hem) :
     print 'task1: ', task1
     print 'task2: ', task2
-    t = [ st.ttest_ind(preds[task1][s][roi][hem]['probs'], preds[task2][s][roi][hem]['probs'], equal_var=False)[0].item()  for s in preds[task1]['subjects'] if s in preds[task1] and roi in preds[task1][s] ]
+    t = [ st.ttest_ind((preds[task1][s][roi][hem]['probs']) if  SUBJECT_GROUP[int(re.findall(r'\d+', s)[0])] == 2 else (1 - preds[task1][s][roi][hem]['probs'])  ,
+                        (preds[task2][s][roi][hem]['probs']) if  SUBJECT_GROUP[int(re.findall(r'\d+', s)[0])] == 2 else (1 - preds[task2][s][roi][hem]['probs']), equal_var=False)[0].item()  
+                for s in preds[task1]['subjects'] 
+                    if s in preds[task1] 
+                        and roi in preds[task1][s] ]
     tval, pval = st.ttest_1samp(t, 0)
     print 'T: '+ str(t)
     print 'Sample size: ' + str(np.size(t))
@@ -50,7 +54,9 @@ def group_test_mean(preds, task1, task2, roi, hem) :
 
 
 def test_probs(preds, tasks, roi, hem) :
-    return [ [group_test_mean(preds, tasks[2], tasks[1], roi, hem)], [group_test_mean(preds, tasks[3], tasks[2], roi, hem)], [group_test_mean(preds, tasks[3], tasks[1], roi, hem)] ]
+    return [ [group_test_mean(preds, tasks[2], tasks[1], roi, hem)], 
+                [group_test_mean(preds, tasks[3], tasks[2], roi, hem)],
+                [group_test_mean(preds, tasks[3], tasks[1], roi, hem)] ]
 
 
 def plot_corr_errors(stats, tasks, xstat, ystat, options, axis) :
@@ -64,8 +70,14 @@ def plot_corr_errors(stats, tasks, xstat, ystat, options, axis) :
             try:
                 count += 1
                 pl.subplot(3, len(options.HEM) *  roi_count / 3, count)
-                x = [ stats['preds'][options.TEST_PREFIX][s][roi][hem][xstat] for s in stats['preds'][options.TEST_PREFIX]['subjects'] if s in stats['preds'][options.TEST_PREFIX] and roi in stats['preds'][options.TEST_PREFIX][s] ]
-                y = [ stats['preds'][options.TEST_PREFIX][s][roi][hem][ystat] for s in stats['preds'][options.TEST_PREFIX]['subjects'] if s in stats['preds'][options.TEST_PREFIX] and roi in stats['preds'][options.TEST_PREFIX][s] ]
+                x = [ stats['preds'][options.TEST_PREFIX][s][roi][hem][xstat] 
+                                for s in stats['preds'][options.TEST_PREFIX]['subjects'] 
+                                    if s in stats['preds'][options.TEST_PREFIX] 
+                                        and roi in stats['preds'][options.TEST_PREFIX][s] ]
+                y = [ stats['preds'][options.TEST_PREFIX][s][roi][hem][ystat] 
+                                for s in stats['preds'][options.TEST_PREFIX]['subjects'] 
+                                    if s in stats['preds'][options.TEST_PREFIX] 
+                                        and roi in stats['preds'][options.TEST_PREFIX][s] ]
                 fit = np.polyfit(x,y,1)
                 fit_fn = np.poly1d(fit) # fit_fn is now a function which takes in x and returns an estimate for y
                 p = pl.plot(x,y, 'yo', x, fit_fn(x), '--k')
