@@ -55,39 +55,36 @@ def predict_probs(train_ds, test_ds, options, shuffle=False) :
     clf = configure_clf_prob(train_ds, options)
     print clf
     clf.train(train_ds)
+    print clf 
     preds = clf(test_ds)
-    print 'TRGTS: ', test_ds.targets.tolist()
-    print 'PREDS: ', preds.samples.T[0].astype(int).tolist()
-    if options.PLOT:
-        pl.figure()
-        if 1 in test_ds.targets :
-            pl.subplot(1,2,1)
-        probs =  np.array([ [pd[1] for (c, pd) in clf.ca.probabilities],
-                            [pd[2] for (c, pd) in clf.ca.probabilities],
-                            [pd[c] for (c, pd) in clf.ca.probabilities] ])
-        pl.boxplot(probs.T)
-        if 1 in test_ds.targets :
-            pl.subplot(1,2,2)
-            import random
-            probs = np.array([random.sample([pd[1] for i, (c, pd) in enumerate(clf.ca.probabilities) if test_ds.targets[i] == 1] * 100, 100) ,
-                              random.sample([pd[1] for i, (c, pd) in enumerate(clf.ca.probabilities) if test_ds.targets[i] == 2] * 100, 100)])
-            pl.boxplot(probs.T)
+    print clf 
     
+    probs =  np.array([pd[1] for (c, pd) in clf.ca.probabilities])
+
     err = -1
     if 1 in test_ds.targets :
         err = np.sum(preds.samples.T != test_ds.targets)*1.0/test_ds.targets.size
+        print 'TRGTS: ', test_ds.targets.tolist()
+        print 'PREDS: ', preds.samples.T[0].astype(int).tolist()
+        if options.PLOT:
+            pl.figure()
+            if 1 in test_ds.targets :
+                pl.subplot(1,2,1)
+            probs =  np.array([ [pd[1] for (c, pd) in clf.ca.probabilities],
+                                [pd[2] for (c, pd) in clf.ca.probabilities],
+                                [pd[c] for (c, pd) in clf.ca.probabilities] ])
+            pl.boxplot(probs.T)
+            if 1 in test_ds.targets :
+                pl.subplot(1,2,2)
+                import random
+                probs = np.array([random.sample([pd[1] for i, (c, pd) in enumerate(clf.ca.probabilities) if test_ds.targets[i] == 1] * 100, 100) ,
+                                  random.sample([pd[1] for i, (c, pd) in enumerate(clf.ca.probabilities) if test_ds.targets[i] == 2] * 100, 100)])
+                pl.boxplot(probs.T)
+         
     
+
     
-    
-    #print clf.ca.probabilities
-    
-    probs =  np.array([pd[1] for (c, pd) in clf.ca.probabilities])
-                       # [pd[2] for (c, pd) in clf.ca.probabilities],
-                       # [pd[c] for (c, pd) in clf.ca.probabilities] 
-    print probs
-    #pl.figure()
-    #pl.hist(probs)
-    
+
     return preds, err, probs
 
 
@@ -132,11 +129,20 @@ def process_hem(subject_dir, options, train_ds, test_ds, stats):
     
     
     #### TEST CONSISTENCY OF DSETS
-    stats['train_mean_cv_error'] = mean_cv_error(train_ds, options)
-    stats['test_mean_cv_error'] = mean_cv_error(test_ds, options)
+    try:
+        stats['train_mean_cv_error'] = mean_cv_error(train_ds, options)
+    except:
+        pass
+    
+    try:
+        stats['test_mean_cv_error'] = mean_cv_error(test_ds, options)
+    except:
+        pass
     
     #### PREDICT WITH TRUE LABELS 
     preds, err, probs = predict_probs(train_ds, test_ds, options, False)
+    stats['probs'] = probs
+    print stats['probs'] 
     print(DELIM)
     if 1 in test_ds.targets :
         count += 1
@@ -145,7 +151,6 @@ def process_hem(subject_dir, options, train_ds, test_ds, stats):
         stats['error'] = err
     print(DELIM)
     stats['counts'] = {}
-    stats['probs'] = probs
     for cls in np.unique(train_ds.targets) :
         counts = np.sum(preds.samples == cls)
         stats['counts'][cls] = counts
@@ -153,7 +158,7 @@ def process_hem(subject_dir, options, train_ds, test_ds, stats):
     # compute error if labels are available
     print(DELIM)
     
-    if options.NPERM == 0 :
+    if options.NPERM == 0:
         return 
 
     if options.NPERM >= (10.0/(1 - options.CONF)):
@@ -209,7 +214,7 @@ def process_sessions(subject_dir, options, train_ds, stats):
     print('Processing: ' + subject_dir)
     train_ds, test_ds = preprocess_train_and_test(train_ds, test_ds, options)
     
-    if options.ROI == "scan" :
+    if options.ROI == "scan":
         for roi in ROIids : 
             new_options = copy.deepcopy(options)
             new_options.ROI = roi
