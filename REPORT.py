@@ -247,7 +247,7 @@ def main(options):
     
     print("Loading ALLSTATS...")
     ### save results
-    res_name    = 'ALLSTATS.scan.scan.' + options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE
+    res_name    = 'ALLSTATS.scan.'+ options.HEM+ '.' + options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE
     stats = h5load(res_name + '.hdf5') 
     print("Done.")
 

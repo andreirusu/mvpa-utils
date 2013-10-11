@@ -23,13 +23,17 @@ from ROIinfo import *
 
 def mean_cv_error(ds, options):
     measure = configure_cv(ds, options)
+    # leave-one-out-CV
+    print 'CHUNKS: ', ds.chunks
+    ds.chunks = np.arange(0, np.size(ds.chunks))
+    print 'CHUNKS: ', ds.chunks
     res = measure(ds) # returns errors
     cvmeans = res.samples # rescales and returns error
     print('Fold error:')
     print(cvmeans)
     print(DELIM)
     mean_error = np.mean(cvmeans)
-    print('Mean CV error: '+str(mean_error))
+    print('********************************* Mean CV error: '+str(mean_error))
     print(DELIM)
     return mean_error
 
