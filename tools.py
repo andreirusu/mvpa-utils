@@ -163,8 +163,6 @@ def preprocess_rsa(dsname, ds, options) :
         print('Chunks:\n' + str(ds.chunks))
         print('Targets:\n' + str(ds.targets))
         print('New dataset shape: ' + str(ds.shape))
-        #ds = selectROI([ds], options)[0] 
-        print('New dataset shape: ' + str(ds.shape))
         print(DELIM)
         return ds
 
@@ -440,6 +438,14 @@ def configure_rsa(ds, options):
 
 def configure_cv(ds, options):
     return CrossValidation(configure_clf(ds, options), partitioner(options))
+
+
+def removeInfColumns(ds) :
+    print('Inf Column Count: '+str(np.sum(np.isinf(np.sum(ds.samples, axis=0)))))
+    #### REMOVE ALL COLUMNS WHICH CONTAIN NAN
+    ds = ds[:, ~np.isinf(np.sum(ds.samples, axis=0))]
+    print('New dataset shape: ' + str(ds.shape))
+    return ds
 
 
 
