@@ -127,7 +127,10 @@ for crun = 1:nrun
         % then you do some process here
         % Example of simple high-pass filtering using DCT
         disp(['Fist vol: ', num2str(rest_file_count+first), '; Last vol: ', num2str(rest_file_count +first+ size(files,1) - 1)])
-        dctmtx = cat(2,spm_dctmtx(numel(N),5), a((rest_file_count+first):(rest_file_count +first+ size(files,1) - 1)), b( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), c( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), d( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), e( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), f( (rest_file_count+first):(rest_file_count +first+ size(files,1) - 1)), white_matter_means, csf_means);
+        
+        ncomp = round((numel(N)*3*2*0.008) + 1)
+        dctmtx = cat(2,spm_dctmtx(numel(N),ncomp), a((rest_file_count+first):(rest_file_count +first+ size(files,1) - 1)), b( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), c( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), d( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), e( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), f( (rest_file_count+first):(rest_file_count +first+ size(files,1) - 1)), white_matter_means, csf_means);
+        
         for i=1:size(dctmtx,2)
             dctmtx(:,i) = (dctmtx(:,i) - mean(dctmtx(:,i))) / std(dctmtx(:,i));
         end

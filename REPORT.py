@@ -28,12 +28,14 @@ from ROIinfo import *
 def group_test_mean(preds, task1, task2, roi, hem) :
     print 'task1: ', task1
     print 'task2: ', task2
+    """
     t = [ st.ttest_ind(preds[task1][s][roi][hem]['probs'],
                        preds[task2][s][roi][hem]['probs'], equal_var=False)[0].item()  
                 for s in preds[task1]['subjects'] 
                     if s in preds[task1] 
                         and roi in preds[task1][s] 
                         and SUBJECT_GROUP[int(re.findall(r'\d+', s)[0])] == 2 ]
+    """
     """
     t = [ st.ttest_ind((preds[task1][s][roi][hem]['probs']) if  SUBJECT_GROUP[int(re.findall(r'\d+', s)[0])] == 2 else (1 - preds[task1][s][roi][hem]['probs'])  ,
                         (preds[task2][s][roi][hem]['probs']) if  SUBJECT_GROUP[int(re.findall(r'\d+', s)[0])] == 2 else (1 - preds[task2][s][roi][hem]['probs']), equal_var=False)[0].item()  
@@ -42,6 +44,13 @@ def group_test_mean(preds, task1, task2, roi, hem) :
                         and roi in preds[task1][s] ]
     
     """
+    t = [ st.ttest_ind(preds[task1][s][roi][hem]['probs'],
+                        preds[task2][s][roi][hem]['probs'], equal_var=False)[0].item()  
+                for s in preds[task1]['subjects'] 
+                    if s in preds[task1] 
+                        and roi in preds[task1][s]]
+    t = [T for T in t if not np.isnan(T)] 
+
     tval, pval = st.ttest_1samp(t, 0)
     print 'T: '+ str(t)
     print 'Sample size: ' + str(np.size(t))
@@ -248,6 +257,7 @@ def main(options):
     print("Loading ALLSTATS...")
     ### save results
     res_name    = 'ALLSTATS.scan.'+ options.HEM+ '.' + options.CLF + '.'+options.TRAIN_PREFIX+ '.'+options.TEST_PREFIX  + '.' +  options.SPACE
+    print('Reading: ' + res_name)
     stats = h5load(res_name + '.hdf5') 
     print("Done.")
 

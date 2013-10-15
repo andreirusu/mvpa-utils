@@ -13,11 +13,12 @@ from tools import *
 #EXPERIMENT_DIR = '/Volumes/backup/mvpa/3_random_subjects'
 EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional'
 CURRENT_TASK = 'rest' # 'reward' also supported
-EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
+EXPORT_DIR = '/Users/andreirusu/mvpa/datasets/gray'
 #SPACE = 'roi'
 #MASK = 'brwROImask.nii'
 SPACE = 'full'
 MASK = 'rmask.nii'
+CLUSTERS = 'srwROIclusters.nii'
 
 
 
@@ -29,10 +30,16 @@ def import_session(subject_dir, sess):
     ds.targets = np.ones(ds.shape[0]) * -1
     ds.chunks = np.ones(ds.shape[0]) * 100
     ds = dataset_wizard(samples=ds.samples, targets=ds.targets, chunks=ds.chunks)
+    # import clusters 
+    clusters_ds = fmri_dataset(samples = os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', CLUSTERS), targets = [-1], chunks = [-1], mask=os.path.join(EXPERIMENT_DIR, subject_dir, 'one_back', 'struct', 'PROC', MASK))
+    cluster_ids = np.abs(np.round(clusters_ds.samples[0]))
+    print(np.sum(cluster_ids > 0))
+    ds.fa['clusters'] = cluster_ids
     print(ds.shape)
     print(ds.nfeatures)
     print(ds.targets)
     print(ds.chunks)
+    print(np.mean(ds.fa.clusters))
     ds.save(os.path.join(EXPERIMENT_DIR, EXPORT_DIR, CURRENT_TASK +'.'+sess+ '.'+subject_dir +'.' + SPACE  +'.hdf5'))
     ### PRE-PROCESSING TEST
     #ds = preprocess(ds)

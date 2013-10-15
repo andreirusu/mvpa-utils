@@ -12,10 +12,10 @@ from ROIinfo import *
 
 
 
-#EXPERIMENT_DIR = '/Volumes/backup/mvpa/3_random_subjects'
-EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional'
+EXPERIMENT_DIR = '/Volumes/backup/mvpa/5_random_subjects'
+#EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional'
 CURRENT_TASK = 'reward' 
-EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
+EXPORT_DIR = '/Users/andreirusu/mvpa/datasets/gray_all_reward'
 SPACE = 'full'
 MASK = 'rmask.nii'
 #SPACE = 'roi'
@@ -74,6 +74,7 @@ def main():
             print(ds.nfeatures)
             print(ds.targets)
             print(ds.chunks)
+            """
             # remove trials which are too close together
             print(onsets)
             sorted_onsets_ids = np.argsort(onsets, axis=0)
@@ -134,11 +135,13 @@ def main():
             ds.fa['clusters'] = cluster_ids
             ds.sa['valid'] = valid
             ds = ds [ds.sa.valid == True]
+            """
             # save dataset
             ds.save(os.path.join(EXPORT_DIR,  CURRENT_TASK + '.' + subject_dir + '.' + SPACE + '.hdf5'))
             ### PRE-PROCESSING TEST
             #ds = preprocess(ds)
         except:
+            print('Exception...' + str(sys.exc_info()))
             continue
 
 

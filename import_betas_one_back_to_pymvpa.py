@@ -12,7 +12,7 @@ from tools import *
 #EXPERIMENT_DIR = '/Volumes/backup/mvpa/3_random_subjects'  
 EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional'  
 CURRENT_TASK = 'one_back' 
-EXPORT_DIR = '/Users/andreirusu/mvpa/datasets'
+EXPORT_DIR = '/Users/andreirusu/mvpa/datasets/gray'
 #SPACE = 'roi'
 #MASK = 'brwROImask.nii'
 SPACE = 'full'

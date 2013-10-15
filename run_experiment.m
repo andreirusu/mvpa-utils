@@ -18,11 +18,11 @@ EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional';
 % cd(EXPERIMENT_DIR)
 % functional_all_subjects
 % 
-% %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
-% cd(EXPERIMENT_DIR)
-% create_brain_masks_all_subjects
-%
-% 
+%% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
+cd(EXPERIMENT_DIR)
+create_brain_masks_all_subjects
+
+
 % %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
 % cd(EXPERIMENT_DIR)
 % create_ROIs_all_subjects
@@ -30,7 +30,7 @@ EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional';
 % %% PRE-PROCESS REST SESSIONS INDEPENDENTLY
 % cd(EXPERIMENT_DIR)
 % rest_sessions_all_subjects;
-
+% 
 
 %% GO BACK TO CODE DIR
 cd(CODE_PATH)
@@ -39,12 +39,12 @@ cd(CODE_PATH)
 
 %% COMPUTE BETA MAPS
 
-addpath(genpath('./analysis'))
-
-R_FMRI_batch_Feb13v2_AAR_one_back
-
-addpath(genpath('./analysis'))
-
-R_FMRI_batch_Feb13v2_AAR_reward_preproc
+% addpath(genpath('./analysis'))
+% 
+% R_FMRI_batch_Feb13v2_AAR_one_back
+% 
+% addpath(genpath('./analysis'))
+% 
+% R_FMRI_batch_Feb13v2_AAR_reward_preproc
 
 

@@ -11,29 +11,11 @@ import numpy as np
 from ROIinfo import * 
 
 
-def concatDatasets(ds1, ds2):
-    ds = dataset_wizard(samples=np.concatenate((ds1.samples, ds2.samples), axis=0), targets=np.concatenate((ds1.targets, ds2.targets), axis=0), chunks=np.concatenate((ds1.chunks, ds2.chunks), axis=0))
-    ds.fa['voxel_indices'] = ds1.fa['voxel_indices']
-    return ds 
-
-
 
 def get_dataset(dsname, options) :
-    one_back = h5load('one_back.' + dsname + '.' + options.SPACE + '.hdf5')
-    reward = h5load('reward.' + dsname + '.' + options.SPACE + '.hdf5')
-    #rest_sess1 = h5load('rest.sess1.' + dsname + '.' + options.SPACE + '.hdf5')
-    #rest_sess2 = h5load('rest.sess2.' + dsname + '.' + options.SPACE + '.hdf5')
-    #rest_sess3 = h5load('rest.sess3.' + dsname + '.' + options.SPACE + '.hdf5')
-    print('Processing: ' + dsname)
-    reward.chunks += np.max(one_back.chunks)
-    #rest_sess1.chunks[:] += np.max(reward.chunks)
-    #rest_sess2.chunks[:] += np.max(rest_sess1.chunks)
-    #rest_sess3.chunks[:] += np.max(rest_sess2.chunks)
-    ds = concatDatasets(one_back, reward)
-    ds = concatDatasets(ds, reward)
-    #ds = concatDatasets(ds, rest_sess1)
-    #ds = concatDatasets(ds, rest_sess2)
-    #ds = concatDatasets(ds, rest_sess3)
+    # get training data
+    ds_path = options.TEST_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5'
+    ds = h5load(ds_path)
     return ds
 
 
@@ -79,7 +61,7 @@ def main(options):
                 pl.hist(cvmeans, 100)
             print(DELIM)
             count += 1
-            overall_mean_best_measure += np.mean(cvmeans)
+            overall_mean_best_measure += np.min(cvmeans)
             print('Min: '+str(np.min(cvmeans)))
             print('Mean: '+str(np.mean(cvmeans)))
             print('Max: '+str(np.max(cvmeans)))
@@ -98,7 +80,7 @@ def main(options):
     pl.show()
     overall_mean_best_measure /= count
     print(DELIM1)
-    print('Overall mean  measure: '+str(overall_mean_best_measure))
+    print('Overall min  measure: '+str(overall_mean_best_measure))
     print(DELIM1)
     print('Done\n')
 
