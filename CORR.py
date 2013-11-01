@@ -31,20 +31,14 @@ def predict_features(test_ds, options) :
     ## PERFORM PCA
     print(DELIM1)
     import sklearn.decomposition as deco
-    x = test_ds.samples
-    pl.figure()
-    pl.imshow(x)
-    pl.colorbar()
-    pl.show()
-    
-    """
-    x = (x - np.mean(x, 0)) / np.std(x, 0) # You need to normalize your data first
+    x = np.copy(ds.samples)
+    x = (x - np.mean(x, 0)) # You need to normalize your data first
     n_components = 1
     pca = deco.PCA(n_components) # n_components is the components number after reduction
-    x_r = pca.fit(x).transform(x)
+    features = pca.fit(x).transform(x)
+    
     print ('Explained variance (first %d components): %.2f'%(n_components, sum(pca.explained_variance_ratio_)))
     print(DELIM1)
-    """
     
     return features
 
@@ -61,7 +55,7 @@ def process_hem(subject_dir, options, test_ds, stats):
     #### CORRICT WITH TRUE LABELS 
     features = predict_features(test_ds, options)
     stats['features'] = features
-    print stats['features'] 
+    print np.transpose(stats['features']) 
     # compute error if labels are available
     print(DELIM)
 

@@ -19,21 +19,11 @@ def concatDatasets(ds1, ds2):
 
 
 def get_dataset(dsname, options) :
-    one_back = h5load('one_back.' + dsname + '.' + options.SPACE + '.hdf5')
-    reward = h5load('reward.' + dsname + '.' + options.SPACE + '.hdf5')
-    #rest_sess1 = h5load('rest.sess1.' + dsname + '.' + options.SPACE + '.hdf5')
-    #rest_sess2 = h5load('rest.sess2.' + dsname + '.' + options.SPACE + '.hdf5')
-    #rest_sess3 = h5load('rest.sess3.' + dsname + '.' + options.SPACE + '.hdf5')
+    train = h5load(options.TRAIN_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
+    test = h5load(options.TEST_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5')
+    train, test = preprocess_train_and_test(train, test, options)
     print('Processing: ' + dsname)
-    reward.chunks += np.max(one_back.chunks)
-    #rest_sess1.chunks[:] += np.max(reward.chunks)
-    #rest_sess2.chunks[:] += np.max(rest_sess1.chunks)
-    #rest_sess3.chunks[:] += np.max(rest_sess2.chunks)
-    ds = concatDatasets(one_back, reward)
-    ds = concatDatasets(ds, reward)
-    #ds = concatDatasets(ds, rest_sess1)
-    #ds = concatDatasets(ds, rest_sess2)
-    #ds = concatDatasets(ds, rest_sess3)
+    ds = concatDatasets(train, test)
     return ds
 
 
@@ -53,10 +43,9 @@ def main(options):
     for dsname in contents :
         try:
             # get training data
-            res_name = 'SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
+            res_name = 'CROSS_SL.R_'+str(options.SL_RADIUS)  +'.'+ options.CLF + '.' + options.CV + '.'+options.TRAIN_PREFIX + '.' +  options.SPACE + '.' + dsname
             
             ds = get_dataset(dsname, options)
-            ds = preprocess_rsa(dsname, ds, options)
 
             measure = configure_sl(ds, options)
             res = measure(ds)

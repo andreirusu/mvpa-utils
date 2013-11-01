@@ -128,7 +128,7 @@ for crun = 1:nrun
         % Example of simple high-pass filtering using DCT
         disp(['Fist vol: ', num2str(rest_file_count+first), '; Last vol: ', num2str(rest_file_count +first+ size(files,1) - 1)])
         
-        ncomp = round((numel(N)*3*2*0.008) + 1)
+        ncomp = round((numel(N)*3*2*0.006) + 1)
         dctmtx = cat(2,spm_dctmtx(numel(N),ncomp), a((rest_file_count+first):(rest_file_count +first+ size(files,1) - 1)), b( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), c( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), d( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), e( (rest_file_count+first) : (rest_file_count +first+ size(files,1) - 1)), f( (rest_file_count+first):(rest_file_count +first+ size(files,1) - 1)), white_matter_means, csf_means);
         
         for i=1:size(dctmtx,2)

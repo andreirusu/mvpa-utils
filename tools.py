@@ -24,7 +24,7 @@ random.seed(0)
 
 def selectROI(ds_lst, options):
     print('Selecting ROI...')
-    print(ds_lst)
+    #print(ds_lst)
     print(options)
     # select cluster
     if options.ROI != 'full' : 

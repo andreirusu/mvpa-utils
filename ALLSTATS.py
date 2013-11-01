@@ -58,7 +58,7 @@ def main(options):
     contents=glob.glob('s*')
     os.chdir(options.EXPORT_DIR)
     # save stats
-    tasks = ['reward', 'rest.sess1', 'rest.sess2', 'rest.sess3']
+    tasks = ['reward', 'rest.sess1', 'rest.sess2', 'rest.sess3', 'rest.band.sess1', 'rest.band.sess2', 'rest.band.sess3']
     
     preds = {}
     for task in tasks :

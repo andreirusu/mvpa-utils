@@ -18,19 +18,21 @@ EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional';
 % cd(EXPERIMENT_DIR)
 % functional_all_subjects
 % 
-%% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
-cd(EXPERIMENT_DIR)
-create_brain_masks_all_subjects
-
-
+% %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
+% cd(EXPERIMENT_DIR)
+% create_brain_masks_all_subjects
+% 
 % %% SEGMENT COREG. STRUCTURAL AND CREATE WHOLE BRAIN MASK
 % cd(EXPERIMENT_DIR)
 % create_ROIs_all_subjects
 % 
-% %% PRE-PROCESS REST SESSIONS INDEPENDENTLY
-% cd(EXPERIMENT_DIR)
-% rest_sessions_all_subjects;
-% 
+%% PRE-PROCESS REST SESSIONS INDEPENDENTLY
+cd(EXPERIMENT_DIR)
+rest_sessions_all_subjects;
+
+%% PRE-PROCESS REST SESSIONS INDEPENDENTLY
+cd(EXPERIMENT_DIR)
+rest_sessions_all_subjects_corr;
 
 %% GO BACK TO CODE DIR
 cd(CODE_PATH)

@@ -74,7 +74,10 @@ def group_test_mean(preds, task1, task2, roi, hem) :
 def test_probs(preds, tasks, roi, hem) :
     return [ [group_test_mean(preds, tasks[2], tasks[1], roi, hem)], 
                 [group_test_mean(preds, tasks[3], tasks[2], roi, hem)],
-                [group_test_mean(preds, tasks[3], tasks[1], roi, hem)] ]
+                [group_test_mean(preds, tasks[3], tasks[1], roi, hem)],
+                [group_test_mean(preds, tasks[5], tasks[4], roi, hem)], 
+                [group_test_mean(preds, tasks[6], tasks[5], roi, hem)],
+                [group_test_mean(preds, tasks[6], tasks[4], roi, hem)]]
 
 
 def plot_corr_errors(stats, tasks, xstat, ystat, options, axis) :
@@ -252,7 +255,7 @@ def main(options):
     # assume current directory contains a directory per subject, begining with the symbol 's' 
     os.chdir(options.EXPORT_DIR)
     # save stats
-    tasks = ['reward', 'rest.sess1', 'rest.sess2', 'rest.sess3']
+    tasks = ['reward', 'rest.sess1', 'rest.sess2', 'rest.sess3', 'rest.band.sess1', 'rest.band.sess2', 'rest.band.sess3']
     
     print("Loading ALLSTATS...")
     ### save results
