@@ -33,8 +33,8 @@ def group_test_mean(preds, task1, task2, roi, hem) :
                        preds[task2][s][roi][hem]['probs'], equal_var=False)[0].item()  
                 for s in preds[task1]['subjects'] 
                     if s in preds[task1] 
-                        and roi in preds[task1][s] 
-                        and SUBJECT_GROUP[int(re.findall(r'\d+', s)[0])] == 2 ]
+                        and roi in preds[task1][s]] 
+                     #   and SUBJECT_GROUP[int(re.findall(r'\d+', s)[0])] == 2 ]
     """
     """
     t = [ st.ttest_ind((preds[task1][s][roi][hem]['probs']) if  SUBJECT_GROUP[int(re.findall(r'\d+', s)[0])] == 2 else (1 - preds[task1][s][roi][hem]['probs'])  ,

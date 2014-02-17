@@ -15,6 +15,7 @@ from ROIinfo import *
 def get_dataset(dsname, options) :
     # get training data
     ds_path = options.TEST_PREFIX + '.' + dsname + '.' + options.SPACE + '.hdf5'
+    print(ds_path)
     ds = h5load(ds_path)
     return ds
 

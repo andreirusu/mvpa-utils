@@ -12,10 +12,12 @@ from ROIinfo import *
 
 
 
-EXPERIMENT_DIR = '/Volumes/backup/mvpa/5_random_subjects'
+#EXPERIMENT_DIR = '/Volumes/backup/mvpa/5_random_subjects'
 #EXPERIMENT_DIR = '/Volumes/backup/mvpa/functional'
+EXPERIMENT_DIR = '/Users/andreirusu/functional'
+#EXPERIMENT_DIR = '/Users/andreirusu/mvpa/3_random_subjects'
 CURRENT_TASK = 'reward' 
-EXPORT_DIR = '/Users/andreirusu/mvpa/datasets/gray_all_reward'
+EXPORT_DIR = '/Users/andreirusu/mvpa/datasets/gray_all_reward_trim'
 SPACE = 'full'
 MASK = 'rmask.nii'
 #SPACE = 'roi'
@@ -63,7 +65,7 @@ def main():
             print(np.sum(cluster_ids > 0))
             # import volumes
             volumes = glob.glob('beta_*img')
-            volumes = volumes[0:256:2] 
+            volumes = volumes[0:128:1] 
             with open('trial_onsets.txt', 'r') as f:
                 lines = [line.strip() for line in f]
             onsets = np.array([float(i) for i in lines[0].split(' ')]) 
@@ -74,7 +76,7 @@ def main():
             print(ds.nfeatures)
             print(ds.targets)
             print(ds.chunks)
-            """
+            #"""
             # remove trials which are too close together
             print(onsets)
             sorted_onsets_ids = np.argsort(onsets, axis=0)
@@ -135,7 +137,7 @@ def main():
             ds.fa['clusters'] = cluster_ids
             ds.sa['valid'] = valid
             ds = ds [ds.sa.valid == True]
-            """
+            #"""
             # save dataset
             ds.save(os.path.join(EXPORT_DIR,  CURRENT_TASK + '.' + subject_dir + '.' + SPACE + '.hdf5'))
             ### PRE-PROCESSING TEST
